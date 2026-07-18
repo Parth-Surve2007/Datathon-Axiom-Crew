@@ -1,6 +1,7 @@
 "use client";
 
 import Sidebar from '@/components/Sidebar';
+import Watermark from '@/components/Watermark';
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePathname } from 'next/navigation';
 
@@ -19,6 +20,9 @@ export default function DashboardLayout({
         <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] rounded-full bg-teal-600/10 blur-[150px]" />
         <div className="absolute bottom-[-20%] right-[-10%] w-[60%] h-[60%] rounded-full bg-cyan-800/10 blur-[150px]" />
       </div>
+
+      {/* Faint KSP Emblem Watermark */}
+      <Watermark />
 
       <Sidebar />
       

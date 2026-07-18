@@ -3,10 +3,13 @@
 import { motion } from 'framer-motion';
 import { ShieldCheck, Mail, Lock } from 'lucide-react';
 import Link from 'next/link';
+import Watermark from '@/components/Watermark';
 
 export default function Login() {
   return (
     <div className="min-h-screen bg-[#050505] flex items-center justify-center p-4 relative overflow-hidden font-sans selection:bg-teal-500/30">
+      {/* KSP Emblem Watermark */}
+      <Watermark />
       {/* Dark Tactical Ambient Background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <motion.div 
