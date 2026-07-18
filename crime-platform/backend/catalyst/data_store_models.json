@@ -1,0 +1,61 @@
+{
+  "tables": [
+    {
+      "name": "police_stations",
+      "columns": [
+        { "name": "id", "type": "varchar", "maxLength": 50, "isUnique": true, "isMandatory": true },
+        { "name": "code", "type": "varchar", "maxLength": 20, "isUnique": true, "isMandatory": true },
+        { "name": "name", "type": "varchar", "maxLength": 100, "isMandatory": true },
+        { "name": "district", "type": "varchar", "maxLength": 100, "isMandatory": true },
+        { "name": "latitude", "type": "double" },
+        { "name": "longitude", "type": "double" }
+      ]
+    },
+    {
+      "name": "officers",
+      "columns": [
+        { "name": "id", "type": "varchar", "maxLength": 50, "isUnique": true, "isMandatory": true },
+        { "name": "badge_id", "type": "varchar", "maxLength": 50, "isUnique": true, "isMandatory": true },
+        { "name": "name", "type": "varchar", "maxLength": 150, "isMandatory": true },
+        { "name": "rank", "type": "varchar", "maxLength": 50, "isMandatory": true },
+        { "name": "station_id", "type": "varchar", "maxLength": 50, "isMandatory": true }
+      ]
+    },
+    {
+      "name": "firs",
+      "columns": [
+        { "name": "id", "type": "varchar", "maxLength": 50, "isUnique": true, "isMandatory": true },
+        { "name": "fir_number", "type": "varchar", "maxLength": 50, "isUnique": true, "isMandatory": true },
+        { "name": "station_id", "type": "varchar", "maxLength": 50, "isMandatory": true },
+        { "name": "incident_date", "type": "datetime", "isMandatory": true },
+        { "name": "status", "type": "varchar", "maxLength": 30, "isMandatory": true }
+      ]
+    },
+    {
+      "name": "persons",
+      "columns": [
+        { "name": "id", "type": "varchar", "maxLength": 50, "isUnique": true, "isMandatory": true },
+        { "name": "first_name", "type": "varchar", "maxLength": 100, "isMandatory": true },
+        { "name": "last_name", "type": "varchar", "maxLength": 100, "isMandatory": true },
+        { "name": "aadhar_number", "type": "varchar", "maxLength": 20, "isUnique": true }
+      ]
+    },
+    {
+      "name": "fir_accused",
+      "columns": [
+        { "name": "id", "type": "varchar", "maxLength": 50, "isUnique": true, "isMandatory": true },
+        { "name": "fir_id", "type": "varchar", "maxLength": 50, "isMandatory": true },
+        { "name": "person_id", "type": "varchar", "maxLength": 50, "isMandatory": true }
+      ]
+    },
+    {
+      "name": "graph_nodes",
+      "columns": [
+        { "name": "node_id", "type": "varchar", "maxLength": 100, "isUnique": true, "isMandatory": true },
+        { "name": "type", "type": "varchar", "maxLength": 50, "isMandatory": true },
+        { "name": "label", "type": "varchar", "maxLength": 255 },
+        { "name": "properties", "type": "varchar", "maxLength": 5000 }
+      ]
+    }
+  ]
+}

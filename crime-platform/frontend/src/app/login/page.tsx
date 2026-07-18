@@ -31,9 +31,8 @@ export default function Login() {
         className="w-full max-w-[420px] bg-[#09090b]/60 backdrop-blur-3xl rounded-[40px] shadow-[0_0_50px_rgba(20,184,166,0.05)] border border-white/10 p-12 relative z-10"
       >
         <div className="text-center mb-12">
-          <div className="w-20 h-20 bg-black/50 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-[0_0_30px_rgba(45,212,191,0.15)] border border-teal-500/30 p-2 relative">
+          <div className="w-28 h-28 flex items-center justify-center mx-auto mb-6 drop-shadow-[0_0_15px_rgba(0,0,0,0.5)] relative">
             <img src="/ksp-logo.png" alt="KSP Logo" className="w-full h-full object-contain relative z-10" />
-            <div className="absolute inset-0 bg-teal-500/10 rounded-3xl animate-pulse" />
           </div>
           <h1 className="text-3xl font-black text-white mb-2 tracking-tighter">Krime<span className="text-teal-400">AI</span> Node</h1>
           <p className="text-slate-500 font-mono text-xs uppercase tracking-widest">KSP Authorized Access Only</p>

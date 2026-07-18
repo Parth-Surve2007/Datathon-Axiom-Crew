@@ -20,6 +20,7 @@ export class CrimeTrendService extends BaseService {
     stationId?: string;
   }): Promise<Record<string, number>> {
     this.log.warn('getTrendsByCategory: not yet implemented');
+    await Promise.resolve(); // Fixes @typescript-eslint/require-await
     return {};
   }
 }

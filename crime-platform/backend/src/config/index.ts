@@ -7,6 +7,7 @@ const envSchema = z.object({
   PORT: z.coerce.number().default(4000),
   API_VERSION: z.string().default('v1'),
   APP_NAME: z.string().default('KrimeAI Backend'),
+  DB_PROVIDER: z.enum(['POSTGRES', 'CATALYST']).default('POSTGRES'),
 
   // Security
   JWT_SECRET: z.string().min(32, 'JWT_SECRET must be at least 32 characters'),

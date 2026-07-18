@@ -23,10 +23,8 @@ export default function Sidebar() {
       
       {/* Brand */}
       <div className="h-24 flex items-center px-6 whitespace-nowrap">
-        <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-teal-400 to-cyan-600 p-0.5 flex-shrink-0 shadow-lg shadow-teal-500/20">
-          <div className="w-full h-full bg-[#09090b] rounded-[10px] flex items-center justify-center">
-            <img src="/ksp-logo.png" alt="KSP" className="w-5 h-5 object-contain" />
-          </div>
+        <div className="w-8 h-8 flex items-center justify-center flex-shrink-0">
+          <img src="/ksp-logo.png" alt="KSP" className="w-full h-full object-contain drop-shadow-md" />
         </div>
         <div className="ml-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100">
           <h1 className="text-xl font-black bg-clip-text text-transparent bg-gradient-to-r from-teal-300 to-cyan-500 tracking-tighter">KrimeAI</h1>
