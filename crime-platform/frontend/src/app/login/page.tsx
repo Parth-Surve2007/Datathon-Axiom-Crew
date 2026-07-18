@@ -49,7 +49,8 @@ export default function Login() {
               <input
                 type="email"
                 className="block w-full pl-14 pr-6 py-5 border border-white/10 rounded-3xl bg-black/40 text-white placeholder-slate-600 focus:outline-none focus:border-teal-500/50 focus:bg-black/60 transition-all font-mono text-sm"
-                placeholder="id@police.gov.in"
+                placeholder="admin@gmail.com"
+                defaultValue="admin@gmail.com"
               />
             </div>
           </div>
@@ -63,7 +64,8 @@ export default function Login() {
               <input
                 type="password"
                 className="block w-full pl-14 pr-6 py-5 border border-white/10 rounded-3xl bg-black/40 text-white placeholder-slate-600 focus:outline-none focus:border-teal-500/50 focus:bg-black/60 transition-all font-mono text-sm"
-                placeholder="••••••••"
+                placeholder="admin"
+                defaultValue="admin"
               />
             </div>
           </div>
