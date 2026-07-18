@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Krime AI",
-  description: "Advanced Crime Intelligence & Investigation Platform — Karnataka State Police",
+  title: "Kangavalu",
+  description: "Always Watching — Advanced Crime Intelligence & Investigation Platform",
   icons: {
     icon: "/ksp-logo.png",
     apple: "/ksp-logo.png",

@@ -26,8 +26,9 @@ export default function Sidebar() {
         <div className="w-8 h-8 flex items-center justify-center flex-shrink-0">
           <img src="/ksp-logo.png" alt="KSP" className="w-full h-full object-contain drop-shadow-md" />
         </div>
-        <div className="ml-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100">
-          <h1 className="text-xl font-black bg-clip-text text-transparent bg-gradient-to-r from-teal-300 to-cyan-500 tracking-tighter">KrimeAI</h1>
+        <div className="ml-4 flex flex-col justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100">
+          <h1 className="text-xl font-black bg-clip-text text-transparent bg-gradient-to-r from-teal-300 to-cyan-500 tracking-tighter">Kangavalu</h1>
+          <span className="text-[11px] text-teal-300/80 font-mono font-light tracking-widest uppercase mt-0.5">Always Watching</span>
         </div>
       </div>
 
