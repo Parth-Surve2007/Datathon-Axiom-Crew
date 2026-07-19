@@ -1,4 +1,7 @@
 import { Router } from 'express';
+import authRoutes from './auth.routes';
+import userRoutes from './user.routes';
+import roleRoutes from './role.routes';
 
 /**
  * API v1 router.
@@ -6,10 +9,14 @@ import { Router } from 'express';
  */
 const v1Router = Router();
 
+// ─── Module 1: Core System & Auth ──────────────────────────────────────────────
+v1Router.use('/auth', authRoutes);
+v1Router.use('/users', userRoutes);
+v1Router.use('/roles', roleRoutes);
+
 // ─── Placeholder Route Groups ──────────────────────────────────────────────────
 // These will be wired in as their respective modules are implemented:
 //
-// import authRoutes from './auth.routes';
 // import firRoutes from './fir.routes';
 // import suspectRoutes from './suspect.routes';
 // import analyticsRoutes from './analytics.routes';
@@ -17,7 +24,6 @@ const v1Router = Router();
 // import graphRoutes from './graph.routes';
 // import reportRoutes from './report.routes';
 //
-// v1Router.use('/auth', authRateLimiter, authRoutes);
 // v1Router.use('/firs', firRoutes);
 // v1Router.use('/suspects', suspectRoutes);
 // v1Router.use('/analytics', analyticsRoutes);
