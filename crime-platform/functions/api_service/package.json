@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "main": "index.js",
+  "scripts": {
+    "serve:local": "node local-server.js"
+  },
   "engines": {
     "node": "18.x"
   },

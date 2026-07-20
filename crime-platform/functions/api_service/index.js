@@ -7,6 +7,7 @@ const { buildPayload } = require('./services/intelligence.service');
 const { answerQuery } = require('./services/ai.service');
 
 const api = express();
+const localApiOnly = process.env.LOCAL_API_ONLY === 'true';
 api.use(express.json());
 api.use((req, res, next) => {
   const origin = req.headers.origin;
@@ -21,11 +22,16 @@ api.use((req, res, next) => {
 });
 
 async function livePayload(req) {
+  if (localApiOnly) return buildPayload(await loadIntelligenceTables());
   const app = catalyst.initialize(req, { scope: 'admin' });
   return buildPayload(await loadIntelligenceTables(app));
 }
 
 async function liveIntelligence(req) {
+  if (localApiOnly) {
+    const tables = await loadIntelligenceTables();
+    return { tables, payload: buildPayload(tables) };
+  }
   const app = catalyst.initialize(req, { scope: 'admin' });
   const tables = await loadIntelligenceTables(app);
   return { tables, payload: buildPayload(tables) };

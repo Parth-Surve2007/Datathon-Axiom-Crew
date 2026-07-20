@@ -37,6 +37,7 @@ async function queryAll(app, table, columns = '*') {
 }
 
 async function loadIntelligenceTables(app) {
+  if (!app) return loadLocalSeed();
   const remoteTables = await app.datastore().getAllTables();
   const names = remoteTables.map((table) => table.toJSON?.().table_name || table.toJSON?.().name || table.tableDetails?.table_name).filter(Boolean);
   if (!names.length) return loadLocalSeed();
