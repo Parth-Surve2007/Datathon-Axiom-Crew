@@ -21,6 +21,8 @@ import type {
   ITimelineEventRepository,
   IDocumentRepository,
   IAuditLogRepository,
+  IEmployeeRepository,
+  IDistrictRepository,
 } from './interfaces';
 
 // ── Postgres Implementations ───────────────────────────────────────────────────
@@ -45,6 +47,8 @@ import { PostgresInvestigationTeamRepository } from './postgres/investigation-te
 import { PostgresTimelineEventRepository } from './postgres/timeline-event.repository';
 import { PostgresDocumentRepository } from './postgres/document.repository';
 import { PostgresAuditLogRepository } from './postgres/audit-log.repository';
+import { PostgresEmployeeRepository } from './postgres/employee.repository';
+import { PostgresDistrictRepository } from './postgres/district.repository';
 
 // ── Catalyst Implementations ───────────────────────────────────────────────────
 import { CatalystFirRepository } from './catalyst/fir.repository';
@@ -67,6 +71,8 @@ import { CatalystChargesheetRepository } from './catalyst/chargesheet.repository
 import { CatalystInvestigationTeamRepository } from './catalyst/investigation-team.repository';
 import { CatalystTimelineEventRepository } from './catalyst/timeline-event.repository';
 import { CatalystDocumentRepository } from './catalyst/document.repository';
+import { CatalystEmployeeRepository } from './catalyst/employee.repository';
+import { CatalystDistrictRepository } from './catalyst/district.repository';
 
 import { createLogger } from '../config/logger';
 
@@ -104,6 +110,8 @@ export class RepositoryFactory {
   private _timelineEvent: ITimelineEventRepository | null = null;
   private _document: IDocumentRepository | null = null;
   private _auditLog: IAuditLogRepository | null = null;
+  private _employee: IEmployeeRepository | null = null;
+  private _district: IDistrictRepository | null = null;
   private _graph: IGraphRepository | null = null;
 
   constructor() {
@@ -139,6 +147,22 @@ export class RepositoryFactory {
       null,
       () => new PostgresPoliceStationRepository() as IPoliceStationRepository,
       () => new CatalystPoliceStationRepository() as IPoliceStationRepository,
+    ));
+  }
+
+  getEmployeeRepository(): IEmployeeRepository {
+    return (this._employee ??= this.resolve<IEmployeeRepository>(
+      null,
+      () => new PostgresEmployeeRepository() as IEmployeeRepository,
+      () => new CatalystEmployeeRepository() as IEmployeeRepository,
+    ));
+  }
+
+  getDistrictRepository(): IDistrictRepository {
+    return (this._district ??= this.resolve<IDistrictRepository>(
+      null,
+      () => new PostgresDistrictRepository() as IDistrictRepository,
+      () => new CatalystDistrictRepository() as IDistrictRepository,
     ));
   }
 

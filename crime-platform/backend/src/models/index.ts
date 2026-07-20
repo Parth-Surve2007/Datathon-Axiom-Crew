@@ -32,9 +32,44 @@ export interface Station extends BaseEntity {
   longitude?: number;
 }
 
-// Placeholder for Phase 2 entities:
-// export interface FIR extends BaseEntity { ... }
-// export interface Suspect extends BaseEntity { ... }
-// export interface Victim extends BaseEntity { ... }
-// export interface Vehicle extends BaseEntity { ... }
-// export interface Location extends BaseEntity { ... }
+// Phase 5 entities:
+export interface Employee extends BaseEntity {
+  badgeId: string;
+  name: string;
+  email: string;
+  phone?: string;
+  rankId: string;
+  designationId?: string;
+  stationId?: string;
+  unitId?: string;
+  isActive: boolean;
+  joinDate?: Date;
+}
+
+export interface Unit extends BaseEntity {
+  name: string;
+  code: string;
+  description?: string;
+  stationId?: string;
+}
+
+export interface District extends BaseEntity {
+  name: string;
+  code: string;
+  stateId: string;
+}
+
+export interface State extends BaseEntity {
+  name: string;
+  code: string;
+}
+
+export interface Rank extends BaseEntity {
+  name: string;
+  level: number;
+}
+
+export interface Designation extends BaseEntity {
+  name: string;
+  description?: string;
+}

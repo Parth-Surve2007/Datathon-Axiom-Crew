@@ -61,6 +61,18 @@ export interface IOfficerRepository extends IBaseRepository<any, any, any> {
   findByStation(stationId: string, params: ListParams): Promise<FindManyResult<any>>;
 }
 
+export interface IEmployeeRepository extends IBaseRepository<any, any, any> {
+  findByBadgeId(badgeId: string): Promise<any | null>;
+  findByEmail(email: string): Promise<any | null>;
+  findByStation(stationId: string, params: ListParams): Promise<FindManyResult<any>>;
+  findByUnit(unitId: string, params: ListParams): Promise<FindManyResult<any>>;
+}
+
+export interface IDistrictRepository extends IBaseRepository<any, any, any> {
+  findByCode(code: string): Promise<any | null>;
+  findByState(stateId: string, params: ListParams): Promise<FindManyResult<any>>;
+}
+
 export interface IUserRepository extends IBaseRepository<any, any, any> {
   findByEmail(email: string): Promise<any | null>;
   findByOfficerId(officerId: string): Promise<any | null>;
