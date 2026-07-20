@@ -2,7 +2,7 @@
  * Models (Entities) — Type definitions matching the Catalyst Data Store schema.
  *
  * These are TypeScript interfaces only — not ORMs.
- * The actual table DDL will be in /database/migrations/.
+ * The actual table DDL will be in ../../../db/migrations/.
  *
  * Phase 2: Add FIR, Suspect, Victim, Station, User, Location models.
  */

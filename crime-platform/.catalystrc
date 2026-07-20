@@ -1,0 +1,29 @@
+{
+  "defaults": {
+    "project": 1
+  },
+  "actives": {
+    "project": 1,
+    "env": 1
+  },
+  "projects": [
+    {
+      "idx": 1,
+      "id": "49792000000013051",
+      "name": "KSP-Crime-Intel",
+      "domain": {
+        "id": "50044085364",
+        "name": "ksp-crime-intel-60078654574.development"
+      },
+      "timezone": "Asia/Kolkata",
+      "env": [
+        {
+          "idx": 1,
+          "id": "60078654574",
+          "name": "Development",
+          "type": 3
+        }
+      ]
+    }
+  ]
+}
