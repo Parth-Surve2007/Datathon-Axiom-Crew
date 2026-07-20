@@ -40,7 +40,7 @@ async function loadIntelligenceTables(app) {
   if (!names.length) return loadLocalSeed();
   const lookup = new Map(names.map((name) => [String(name).toLowerCase(), name]));
   const missing = REQUIRED_TABLES.filter((name) => !lookup.has(name.toLowerCase()));
-  if (missing.length) throw new Error(`Catalyst Data Store is missing required tables: ${missing.join(', ')}`);
+  if (missing.length) return loadLocalSeed();
   const datasets = await Promise.all(REQUIRED_TABLES.map((name) => queryAll(app, lookup.get(name.toLowerCase()))));
   return { ...Object.fromEntries(REQUIRED_TABLES.map((name, index) => [name, datasets[index]])), __source: 'Zoho Catalyst Data Store' };
 }

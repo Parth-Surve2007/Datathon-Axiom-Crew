@@ -25,6 +25,12 @@ async function livePayload(req) {
   return buildPayload(await loadIntelligenceTables(app));
 }
 
+async function liveIntelligence(req) {
+  const app = catalyst.initialize(req, { scope: 'admin' });
+  const tables = await loadIntelligenceTables(app);
+  return { tables, payload: buildPayload(tables) };
+}
+
 function errorDetail(error) {
   if (error instanceof Error && error.message) return error.message;
   if (error && typeof error === 'object') {
@@ -64,8 +70,8 @@ api.get('/intelligence', async (req, res) => {
 
 api.post('/chat', async (req, res) => {
   try {
-    const payload = await livePayload(req);
-    res.json({ answer: answerQuery(req.body?.query, payload), generatedAt: payload.generatedAt, source: payload.source });
+    const { tables, payload } = await liveIntelligence(req);
+    res.json(answerQuery(req.body?.query, payload, tables, req.body?.history));
   } catch (error) {
     res.status(500).json({ error: 'Unable to query live intelligence.', detail: errorDetail(error) });
   }

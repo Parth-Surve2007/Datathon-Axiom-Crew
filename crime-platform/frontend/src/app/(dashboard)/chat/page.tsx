@@ -33,12 +33,23 @@ import { useLiveIntelligence } from "@/hooks/useLiveIntelligence";
 
 type MessageSender = "bot" | "user";
 
+type ChatInsight = {
+  intent: string;
+  confidence: string;
+  source: string;
+  metrics: Array<{ label: string; value: string | number }>;
+  references: Array<{ type: string; id: string; title: string; detail: string }>;
+  reasoning: string[];
+  followUps: string[];
+};
+
 type ChatMessage = {
   id: number;
   sender: MessageSender;
   text: string;
   timestamp: string;
   hasCard?: boolean;
+  intelligence?: ChatInsight;
 };
 
 const initialMessages: ChatMessage[] = [
@@ -51,9 +62,10 @@ const initialMessages: ChatMessage[] = [
 ];
 
 const suggestions = [
-  "Show repeat locations",
-  "Compare the previous 30 days",
-  "List linked vehicle records",
+  "Show repeat offenders with evidence",
+  "Which station is the top hotspot?",
+  "Give prevention intelligence",
+  "Summarize FIRs linked to cyber crime",
 ];
 
 const formatTimestamp = () =>
@@ -111,10 +123,25 @@ export default function Chat() {
     setIsResponding(true);
 
     try {
-      const response = await fetch(`${catalystApiBase}/chat`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ query }) });
+      const history = messages.slice(-8).map((message) => ({ sender: message.sender, text: message.text }));
+      const response = await fetch(`${catalystApiBase}/chat`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query, history }),
+      });
       const result = await response.json();
       if (!response.ok) throw new Error(result.detail || result.error || "Catalyst query failed");
-      setMessages((current) => [...current, { id: messageId.current++, sender: "bot", text: result.answer, timestamp: formatTimestamp(), hasCard: true }]);
+      setMessages((current) => [
+        ...current,
+        {
+          id: messageId.current++,
+          sender: "bot",
+          text: result.answer,
+          timestamp: formatTimestamp(),
+          hasCard: true,
+          intelligence: result,
+        },
+      ]);
     } catch (caught) {
       setMessages((current) => [...current, { id: messageId.current++, sender: "bot", text: caught instanceof Error ? caught.message : "Unable to reach Catalyst.", timestamp: formatTimestamp() }]);
     } finally {
@@ -141,10 +168,10 @@ export default function Chat() {
       "",
       ...messages.map((message) => {
         const speaker = message.sender === "bot" ? "KrimeAI" : "Officer";
-        const result = message.hasCard
-          ? `\n    Query result: ${data?.summary.totalCases ?? 0} live FIR records`
+        const insight = message.intelligence
+          ? `\n    Intent: ${message.intelligence.intent}\n    Confidence: ${message.intelligence.confidence}\n    Evidence: ${message.intelligence.references.map((item) => `${item.type} ${item.id}`).join(", ") || "None"}`
           : "";
-        return `[${message.timestamp}] ${speaker}\n${message.text}${result}`;
+        return `[${message.timestamp}] ${speaker}\n${message.text}${insight}`;
       }),
     ].join("\n\n");
 
@@ -360,7 +387,7 @@ export default function Chat() {
                         {isUser ? "Officer" : "KrimeAI"} · {message.timestamp}
                       </span>
 
-                      {message.hasCard && (
+                      {message.hasCard && message.intelligence && (
                         <motion.div
                           initial={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 18, scale: 0.96, rotateX: 5 }}
                           animate={{ opacity: 1, y: 0, scale: 1, rotateX: 0 }}
@@ -384,25 +411,28 @@ export default function Chat() {
                                 <FileText size={16} />
                               </span>
                               <div>
-                                <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-[#72808d]">Query result</p>
-                                <h3 className="mt-0.5 text-sm font-semibold tracking-[-0.025em] text-[#182033]">Catalyst intelligence result</h3>
+                                <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-[#72808d]">Grounded intelligence</p>
+                                <h3 className="mt-0.5 text-sm font-semibold tracking-[-0.025em] capitalize text-[#182033]">{message.intelligence.intent.replace("-", " ")}</h3>
                               </div>
                             </div>
-                            <span className="rounded-full bg-white/75 px-2.5 py-1 text-[8px] font-bold uppercase tracking-wider text-[#287a71]">Pattern found</span>
+                            <span className="rounded-full bg-white/75 px-2.5 py-1 text-[8px] font-bold uppercase tracking-wider text-[#287a71]">{message.intelligence.confidence} confidence</span>
                           </div>
 
-                          <div className="relative mt-4 grid grid-cols-2 overflow-hidden rounded-2xl border border-white/80 bg-white/55">
-                            <div className="p-3.5 sm:p-4">
-                              <p className="text-[8px] font-semibold uppercase tracking-[0.14em] text-[#7b8792]">Records found</p>
+                          <div className="relative mt-4 grid overflow-hidden rounded-2xl border border-white/80 bg-white/55 sm:grid-cols-3">
+                            {message.intelligence.metrics.slice(0, 3).map((metric, metricIndex) => (
+                            <div key={metric.label} className={`${metricIndex > 0 ? "border-t border-[#d5e0e7] sm:border-l sm:border-t-0" : ""} p-3.5 sm:p-4`}>
+                              <p className="text-[8px] font-semibold uppercase tracking-[0.14em] text-[#7b8792]">{metric.label}</p>
                               <motion.p
                                 initial={{ opacity: 0, y: 8 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: reduceMotion ? 0 : 0.7 }}
+                                transition={{ delay: reduceMotion ? 0 : 0.68 + metricIndex * 0.08 }}
                                 className="mt-1 text-2xl font-semibold tracking-[-0.055em] text-[#182033]"
                               >
-                                {data?.summary.totalCases ?? 0}
+                                {metric.value}
                               </motion.p>
                             </div>
+                            ))}
+                            {false && (
                             <div className="border-l border-[#d5e0e7] p-3.5 sm:p-4">
                               <p className="text-[8px] font-semibold uppercase tracking-[0.14em] text-[#7b8792]">Confidence</p>
                               <motion.p
@@ -414,7 +444,54 @@ export default function Chat() {
                                 {data ? "Live" : "—"}
                               </motion.p>
                             </div>
+                            )}
                           </div>
+
+                          {message.intelligence.references.length > 0 && (
+                            <div className="relative mt-4 space-y-2">
+                              <p className="text-[8px] font-bold uppercase tracking-[0.16em] text-[#72808d]">Evidence trail</p>
+                              {message.intelligence.references.slice(0, 4).map((reference) => (
+                                <div key={`${reference.type}-${reference.id}`} className="rounded-2xl border border-white/85 bg-white/60 p-3">
+                                  <div className="flex items-start justify-between gap-3">
+                                    <div className="min-w-0">
+                                      <p className="truncate text-[11px] font-semibold text-[#182033]">{reference.title}</p>
+                                      <p className="mt-1 text-[9px] leading-relaxed text-[#69747f]">{reference.detail}</p>
+                                    </div>
+                                    <span className="shrink-0 rounded-full bg-[#eef2f5] px-2 py-1 text-[8px] font-bold uppercase tracking-wide text-[#5f6b76]">
+                                      {reference.type} {reference.id}
+                                    </span>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+
+                          <div className="relative mt-4 rounded-2xl border border-white/85 bg-white/45 p-3.5">
+                            <p className="text-[8px] font-bold uppercase tracking-[0.16em] text-[#72808d]">Reasoning path</p>
+                            <ol className="mt-2 space-y-1.5">
+                              {message.intelligence.reasoning.slice(0, 3).map((step) => (
+                                <li key={step} className="flex gap-2 text-[9px] leading-relaxed text-[#64727e]">
+                                  <span className="mt-1 size-1.5 shrink-0 rounded-full bg-[#d9482b]" />
+                                  <span>{step}</span>
+                                </li>
+                              ))}
+                            </ol>
+                          </div>
+
+                          {message.intelligence.followUps.length > 0 && (
+                            <div className="relative mt-4 flex flex-wrap gap-2">
+                              {message.intelligence.followUps.slice(0, 3).map((followUp) => (
+                                <button
+                                  key={followUp}
+                                  type="button"
+                                  onClick={() => applySuggestion(followUp)}
+                                  className="rounded-full border border-[#dce2e6] bg-white/65 px-3 py-2 text-[9px] font-semibold text-[#56616d] transition-colors hover:border-[#e3aa9d] hover:bg-[#fbeae5] hover:text-[#b93d25]"
+                                >
+                                  {followUp}
+                                </button>
+                              ))}
+                            </div>
+                          )}
 
                           <div className="relative mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                             <p className="text-[9px] leading-relaxed text-[#6c7884]">{data?.hotspots.length ?? 0} station clusters · {data?.network.edges.length ?? 0} entity links</p>
