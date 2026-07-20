@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import type { LucideIcon } from "lucide-react";
 import {
@@ -11,6 +11,8 @@ import {
   Crosshair,
   FileText,
   Focus,
+  Eye,
+  EyeOff,
   MapPin,
   Minus,
   Network as NetworkIcon,
@@ -87,14 +89,24 @@ export default function NetworkGraph() {
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<(typeof filters)[number]>("All");
   const [selectedId, setSelectedId] = useState("");
+  const [hoveredId, setHoveredId] = useState("");
   const [riskOnly, setRiskOnly] = useState(false);
+  const [showAllLinks, setShowAllLinks] = useState(false);
   const [zoom, setZoom] = useState(1);
+  const [positions, setPositions] = useState<Record<string, { x: number; y: number }>>({});
+  const graphRef = useRef<HTMLDivElement>(null);
   const iconByKind: Record<NodeKind, LucideIcon> = { Person: UserRound, Case: FileText, Asset: Car, Place: MapPin, Organisation: Building2 };
-  const nodes: GraphNode[] = (data?.network.nodes ?? []).map((node) => ({ ...node, icon: iconByKind[node.kind] }));
+  const nodes: GraphNode[] = (data?.network.nodes ?? []).map((node) => ({
+    ...node,
+    icon: iconByKind[node.kind],
+    x: positions[node.id]?.x ?? node.x,
+    y: positions[node.id]?.y ?? node.y,
+  }));
   const nodeIds = new Set(nodes.map((node) => node.id));
   const edges: GraphEdge[] = (data?.network.edges ?? []).filter((edge) => nodeIds.has(edge.source) && nodeIds.has(edge.target));
 
   const selected = nodes.find((node) => node.id === selectedId) ?? nodes[0];
+  const activeId = hoveredId || selected?.id;
   const normalizedQuery = query.trim().toLowerCase();
 
   const matchingIds = new Set(
@@ -109,6 +121,8 @@ export default function NetworkGraph() {
   );
 
   const directEdges = selected ? edges.filter((edge) => edge.source === selected.id || edge.target === selected.id) : [];
+  const activeEdges = activeId ? edges.filter((edge) => edge.source === activeId || edge.target === activeId) : [];
+  const activeNodeIds = new Set(activeEdges.flatMap((edge) => [edge.source, edge.target]));
   const connectedNodes = directEdges.flatMap((edge) => {
     const connectedId = edge.source === selected.id ? edge.target : edge.source;
     const node = nodes.find((item) => item.id === connectedId);
@@ -119,8 +133,18 @@ export default function NetworkGraph() {
     setQuery("");
     setFilter("All");
     setRiskOnly(false);
+    setShowAllLinks(false);
     setZoom(1);
+    setPositions({});
     setSelectedId(nodes[0]?.id ?? "");
+  };
+
+  const moveNode = (node: GraphNode, offsetX: number, offsetY: number) => {
+    const bounds = graphRef.current?.getBoundingClientRect();
+    if (!bounds) return;
+    const x = Math.min(94, Math.max(6, node.x + (offsetX / bounds.width) * 100));
+    const y = Math.min(91, Math.max(9, node.y + (offsetY / bounds.height) * 100));
+    setPositions((current) => ({ ...current, [node.id]: { x, y } }));
   };
 
   if (loading || error || !data || !selected) return <LiveDataState loading={loading} error={error || (!loading && data ? "No linked entities were found in Catalyst." : null)} onRetry={refresh} />;
@@ -218,7 +242,8 @@ export default function NetworkGraph() {
                 {matchingIds.size} matching entities · synthetic intelligence dataset
               </p>
             </div>
-            <div className="thin-scrollbar flex max-w-full gap-1 overflow-x-auto rounded-2xl bg-[#f1f3f4] p-1">
+            <div className="flex max-w-full items-center gap-2 overflow-x-auto">
+              <div className="thin-scrollbar flex gap-1 overflow-x-auto rounded-2xl bg-[#f1f3f4] p-1">
               {filters.map((item) => (
                 <button
                   key={item}
@@ -232,10 +257,24 @@ export default function NetworkGraph() {
                   {item}
                 </button>
               ))}
+              </div>
+              <button
+                type="button"
+                aria-pressed={showAllLinks}
+                onClick={() => setShowAllLinks((current) => !current)}
+                className={`flex min-h-11 shrink-0 items-center gap-2 rounded-2xl border px-3 text-xs font-semibold transition ${
+                  showAllLinks
+                    ? "border-[#182033] bg-[#182033] text-white"
+                    : "border-[#dce1e5] bg-white text-[#59636f] hover:border-[#bfc7cd]"
+                }`}
+              >
+                {showAllLinks ? <EyeOff aria-hidden size={15} /> : <Eye aria-hidden size={15} />}
+                {showAllLinks ? "Focus links" : "Show all links"}
+              </button>
             </div>
           </div>
 
-          <div className="thin-scrollbar relative min-h-[500px] overflow-auto rounded-[24px] border border-[#e1e6e9] bg-[#eef2f3] sm:min-h-[570px]">
+          <div className="thin-scrollbar relative min-h-[500px] overflow-auto rounded-[26px] border border-white/80 bg-[#edf2f4] shadow-[inset_0_1px_0_rgba(255,255,255,.9),inset_0_0_80px_rgba(117,167,211,.08)] sm:min-h-[570px]">
             <div className="sticky left-3 top-3 z-30 flex w-fit items-center gap-1 rounded-2xl border border-white bg-white/90 p-1 shadow-[0_12px_28px_rgba(24,32,51,0.1)] backdrop-blur">
               <button
                 type="button"
@@ -266,6 +305,7 @@ export default function NetworkGraph() {
             </div>
 
             <motion.div
+              ref={graphRef}
               animate={{ scale: zoom }}
               transition={reduceMotion ? { duration: 0 } : { type: "spring", stiffness: 260, damping: 28 }}
               className="relative -mt-11 min-w-[760px] origin-center"
@@ -273,21 +313,22 @@ export default function NetworkGraph() {
             >
               <div
                 aria-hidden
-                className="absolute inset-0 opacity-45"
+                className="absolute inset-0 opacity-40"
                 style={{
                   backgroundImage:
-                    "radial-gradient(circle, rgba(24,32,51,.15) 1px, transparent 1.25px), radial-gradient(circle at 50% 48%, rgba(117,167,211,.22), transparent 34%)",
-                  backgroundSize: "18px 18px, 100% 100%",
+                    "radial-gradient(circle, rgba(24,32,51,.13) 1px, transparent 1.2px), radial-gradient(circle at 50% 46%, rgba(117,167,211,.28), transparent 38%), radial-gradient(circle at 18% 70%, rgba(40,122,113,.14), transparent 25%)",
+                  backgroundSize: "22px 22px, 100% 100%, 100% 100%",
                 }}
               />
-              <div aria-hidden className="absolute left-1/2 top-1/2 size-[42%] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#75a7d3]/20" />
-              <div aria-hidden className="absolute left-1/2 top-1/2 size-[67%] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#182033]/[0.06]" />
+              <motion.div aria-hidden animate={reduceMotion ? undefined : { scale: [1, 1.04, 1] }} transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }} className="absolute left-1/2 top-1/2 size-[44%] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#75a7d3]/20 bg-white/10 shadow-[0_0_80px_rgba(117,167,211,.14)]" />
+              <div aria-hidden className="absolute left-1/2 top-1/2 size-[72%] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#182033]/[0.055]" />
 
               {edges.map((edge, index) => {
                 const geometry = edgeGeometry(edge, nodes);
                 if (!geometry) return null;
-                const isDirect = edge.source === selected.id || edge.target === selected.id;
+                const isDirect = edge.source === activeId || edge.target === activeId;
                 const isDimmed = !matchingIds.has(edge.source) && !matchingIds.has(edge.target);
+                const edgeOpacity = isDimmed ? 0.04 : isDirect ? 0.92 : showAllLinks ? 0.2 : 0.035;
 
                 return (
                   <div key={edge.id}>
@@ -303,24 +344,26 @@ export default function NetworkGraph() {
                     >
                       <motion.div
                         initial={reduceMotion ? { opacity: 1 } : { scaleX: 0, opacity: 0 }}
-                        animate={{ scaleX: 1, opacity: isDimmed ? 0.12 : isDirect ? 0.95 : 0.48 }}
+                        animate={{ scaleX: 1, opacity: edgeOpacity }}
                         transition={{ delay: reduceMotion ? 0 : 0.18 + index * 0.07, duration: 0.75, ease: EASE }}
                         className={`h-full w-full origin-left ${isDirect ? "bg-[#d9482b]" : "bg-[#71808d]"}`}
                         style={{ height: isDirect ? 2 : 1 }}
                       />
                     </div>
-                    <motion.span
-                      aria-hidden
-                      animate={{ opacity: isDimmed ? 0.1 : isDirect ? 1 : 0.62 }}
-                      className={`absolute z-[1] -translate-x-1/2 -translate-y-1/2 rounded-full border px-2 py-1 text-[8px] font-bold uppercase tracking-[0.08em] ${
-                        isDirect
-                          ? "border-[#f0b7aa] bg-[#fff7f5] text-[#b63a23]"
-                          : "border-white bg-white/80 text-[#7d8790]"
-                      }`}
-                      style={{ left: geometry.labelLeft, top: geometry.labelTop }}
-                    >
-                      {edge.label}
-                    </motion.span>
+                    <AnimatePresence>
+                      {isDirect && (
+                        <motion.span
+                          aria-hidden
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.8 }}
+                          className="absolute z-[1] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#f0b7aa] bg-[#fff7f5]/95 px-2 py-1 text-[8px] font-bold uppercase tracking-[0.08em] text-[#b63a23] shadow-sm backdrop-blur"
+                          style={{ left: geometry.labelLeft, top: geometry.labelTop }}
+                        >
+                          {edge.label}
+                        </motion.span>
+                      )}
+                    </AnimatePresence>
                   </div>
                 );
               })}
@@ -328,8 +371,10 @@ export default function NetworkGraph() {
               {nodes.map((node, index) => {
                 const isSelected = node.id === selected.id;
                 const isMatch = matchingIds.has(node.id);
+                const isConnected = activeNodeIds.has(node.id);
                 const tone = kindTone[node.kind];
                 const Icon = node.icon;
+                const nodeOpacity = !isMatch ? 0.12 : isSelected || isConnected || showAllLinks ? 1 : 0.38;
 
                 return (
                   <div
@@ -337,18 +382,35 @@ export default function NetworkGraph() {
                     className="absolute z-10 -translate-x-1/2 -translate-y-1/2"
                     style={{ left: `${node.x}%`, top: `${node.y}%` }}
                   >
-                    <motion.button
-                      type="button"
-                      onClick={() => setSelectedId(node.id)}
-                      initial={reduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.45, y: 18 }}
-                      animate={{ opacity: isMatch || isSelected ? 1 : 0.28, scale: isSelected ? 1.08 : 1, y: 0 }}
-                      whileHover={reduceMotion ? undefined : { y: -5, scale: isSelected ? 1.1 : 1.05 }}
-                      whileTap={{ scale: 0.96 }}
-                      transition={{ delay: reduceMotion ? 0 : 0.35 + index * 0.08, type: "spring", stiffness: 290, damping: 23 }}
-                      className={`group relative flex min-h-[62px] w-[150px] items-center gap-3 rounded-[20px] border bg-white p-3 text-left shadow-[0_13px_30px_rgba(24,32,51,0.12)] transition-colors ${
-                        isSelected ? "border-[#d9482b]" : "border-white hover:border-[#cfd6db]"
-                      } ${node.kind === "Case" ? "w-[166px]" : ""}`}
+                    <motion.div
+                      animate={reduceMotion ? undefined : { y: [0, -4 - (index % 3), 0] }}
+                      transition={{ duration: 4.8 + (index % 4) * 0.55, delay: index * 0.11, repeat: Infinity, ease: "easeInOut" }}
                     >
+                      <motion.button
+                        type="button"
+                        drag
+                        dragMomentum={false}
+                        dragSnapToOrigin
+                        onDragEnd={(_, info) => moveNode(node, info.offset.x, info.offset.y)}
+                        onPointerEnter={() => setHoveredId(node.id)}
+                        onPointerLeave={() => setHoveredId("")}
+                        onFocus={() => setHoveredId(node.id)}
+                        onBlur={() => setHoveredId("")}
+                        onClick={() => setSelectedId(node.id)}
+                        initial={reduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.55 }}
+                        animate={{ opacity: nodeOpacity, scale: isSelected ? 1.07 : isConnected ? 1 : 0.94 }}
+                        whileHover={reduceMotion ? undefined : { y: -3, scale: isSelected ? 1.1 : 1.04 }}
+                        whileTap={{ scale: 0.97, cursor: "grabbing" }}
+                        transition={{ delay: reduceMotion ? 0 : 0.28 + index * 0.045, type: "spring", stiffness: 290, damping: 23 }}
+                        aria-label={`${node.label}, ${node.kind}, risk ${node.risk}. Drag to reposition or select to inspect.`}
+                        className={`group relative flex min-h-[62px] w-[150px] cursor-grab touch-none select-none items-center gap-3 rounded-[20px] border bg-white/90 p-3 text-left backdrop-blur-xl transition-[border-color,box-shadow] active:cursor-grabbing ${
+                          isSelected
+                            ? "border-[#d9482b] shadow-[0_22px_55px_rgba(217,72,43,0.2)]"
+                            : isConnected
+                              ? "border-white shadow-[0_18px_40px_rgba(24,32,51,0.14)] hover:border-[#cfd6db]"
+                              : "border-white/80 shadow-[0_10px_24px_rgba(24,32,51,0.08)] hover:border-[#cfd6db]"
+                        } ${node.kind === "Case" ? "w-[166px]" : ""}`}
+                      >
                       {isSelected && (
                         <motion.span
                           aria-hidden
@@ -370,7 +432,8 @@ export default function NetworkGraph() {
                       >
                         {node.risk}
                       </span>
-                    </motion.button>
+                      </motion.button>
+                    </motion.div>
                   </div>
                 );
               })}

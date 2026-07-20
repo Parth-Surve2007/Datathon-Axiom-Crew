@@ -18,7 +18,7 @@
       "timezone": "Asia/Kolkata",
       "env": [
         {
-          "idx": 1,
+          "zidx": 1,
           "id": "60078654574",
           "name": "Development",
           "type": 3,
