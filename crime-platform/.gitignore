@@ -1,4 +1,4 @@
 .build/
 catalyst-debug.log
 functions/*/node_modules/
-
+.catalystrc

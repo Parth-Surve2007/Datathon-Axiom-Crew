@@ -1,6 +1,8 @@
 {
   "functions": {
-    "source": "functions",
-    "targets": ["api_service"]
+    "targets": [
+      "api_service"
+    ],
+    "source": "functions"
   }
 }
