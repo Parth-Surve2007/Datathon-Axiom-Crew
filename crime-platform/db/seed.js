@@ -18,16 +18,40 @@ function pad(num, size) {
   return s;
 }
 
+let randomState = 0x4b535032;
+
+function random() {
+  randomState = (randomState * 1664525 + 1013904223) >>> 0;
+  return randomState / 0x100000000;
+}
+
 function getRandomInt(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
+  return Math.floor(random() * (max - min + 1)) + min;
 }
 
 function getRandomElement(arr) {
-  return arr[Math.floor(Math.random() * arr.length)];
+  return arr[Math.floor(random() * arr.length)];
+}
+
+function weightedChoice(items, weights) {
+  const total = weights.reduce((sum, weight) => sum + weight, 0);
+  let cursor = random() * total;
+  for (let index = 0; index < items.length; index++) {
+    cursor -= weights[index];
+    if (cursor <= 0) return items[index];
+  }
+  return items[items.length - 1];
+}
+
+function addDays(date, days) {
+  const next = new Date(`${date}T00:00:00Z`);
+  next.setUTCDate(next.getUTCDate() + days);
+  return next.toISOString().slice(0, 10);
 }
 
 function generateSeedData() {
   console.log('Generating seed data for Karnataka Police schema...');
+  randomState = 0x4b535032;
 
   const statements = [];
   const addStmt = (sql) => statements.push(sql);
@@ -276,12 +300,42 @@ function generateSeedData() {
   ];
   const ringCaseIDs = [25, 105, 210, 340];
 
-  const complainantFirstNames = ['Anand', 'Bharath', 'Chetan', 'Deepak', 'Eshwar', 'Girish', 'Harish', 'Jagadish', 'Kavitha', 'Latha', 'Meena', 'Nandini', 'Pooja', 'Radha', 'Shilpa', 'Suma'];
-  const complainantLastNames = ['Shetty', 'Rao', 'Bhat', 'Joshi', 'Kulkarni', 'Gowda', 'Hegde', 'Murthy', 'Deshpande', 'Naik'];
+  const complainantFirstNames = ['Anand', 'Bharath', 'Chetan', 'Deepak', 'Eshwar', 'Girish', 'Harish', 'Jagadish', 'Kavitha', 'Latha', 'Meena', 'Nandini', 'Pooja', 'Radha', 'Shilpa', 'Suma', 'Ayesha', 'Farhan', 'Joel', 'Naveena'];
+  const complainantLastNames = ['Shetty', 'Rao', 'Bhat', 'Joshi', 'Kulkarni', 'Gowda', 'Hegde', 'Murthy', 'Deshpande', 'Naik', 'Khan', 'Fernandes', 'Patil', 'Poojary'];
 
-  const victimFirstNames = ['Arun', 'Bhavya', 'Chaitra', 'Divya', 'Ganesh', 'Kiran', 'Manoj', 'Nikhil', 'Praveen', 'Rajesh', 'Sangeetha', 'Vinay'];
-  const accusedFirstNames = ['Altaf', 'Babloo', 'Dharma', 'Imtiaz', 'Jagga', 'Mantu', 'Pandu', 'Raja', 'Shiva', 'Tukaram', 'Vicky', 'Yogesh'];
-  const accusedLastNames = ['Kumar', 'Singh', 'Khan', 'Alias', 'Salim', 'Reddy', 'Pashan', 'Verma'];
+  const victimFirstNames = ['Arun', 'Bhavya', 'Chaitra', 'Divya', 'Ganesh', 'Kiran', 'Manoj', 'Nikhil', 'Praveen', 'Rajesh', 'Sangeetha', 'Vinay', 'Fathima', 'Roshan', 'Asha', 'Tarun'];
+  const accusedFirstNames = ['Altaf', 'Dharma', 'Imtiaz', 'Jagga', 'Mantu', 'Pandu', 'Raja', 'Shiva', 'Tukaram', 'Vicky', 'Yogesh', 'Rafiq', 'Mohan', 'Sameer', 'Nagesh', 'Ajay', 'Lokesh', 'Salman', 'Rohit', 'Manjunath'];
+  const accusedLastNames = ['Kumar', 'Singh', 'Khan', 'Salim', 'Reddy', 'Pashan', 'Verma', 'Gowda', 'Naik', 'Shaikh', 'Patil', 'Jadhav', 'Poojary', 'Shetty'];
+
+  // Reported volume rises through the monsoon and festival period rather than
+  // repeating a flat 50 cases every month. Counts intentionally total 600.
+  const monthlyVolumes = [38, 42, 47, 44, 50, 56, 62, 59, 54, 51, 49, 48];
+  const caseCalendar = [];
+  monthlyVolumes.forEach((volume, monthIndex) => {
+    for (let index = 0; index < volume; index++) {
+      const day = 1 + ((index * 11 + monthIndex * 7) % 28);
+      caseCalendar.push({ month: monthIndex + 1, day });
+    }
+  });
+
+  const districtWeights = [42, 15, 12, 12, 11, 8];
+  const headWeightsByMonth = [
+    [42, 19, 17, 13, 9], [43, 18, 17, 13, 9], [39, 19, 20, 13, 9],
+    [37, 18, 23, 14, 8], [38, 18, 22, 13, 9], [44, 17, 18, 12, 9],
+    [48, 17, 15, 11, 9], [46, 18, 16, 11, 9], [40, 20, 18, 13, 9],
+    [36, 22, 19, 14, 9], [34, 21, 23, 14, 8], [39, 19, 22, 12, 8],
+  ];
+  const subHeadWeights = {
+    1: [44, 27, 20, 9],
+    2: [18, 82],
+    3: [68, 32],
+    4: [100],
+    5: [100],
+  };
+  const locationsByUnit = {
+    urban: ['near a bus stop', 'outside a commercial complex', 'on a residential cross road', 'near a market entrance', 'beside a metro approach road'],
+    regional: ['near the central market', 'on the ring road service lane', 'close to a residential layout', 'near the inter-city bus stand', 'beside an industrial access road'],
+  };
 
   let complainantIdCounter = 1;
   let victimMasterIdCounter = 1;
@@ -290,20 +344,36 @@ function generateSeedData() {
   let csIdCounter = 1;
 
   for (let caseId = 1; caseId <= totalCases; caseId++) {
+    const calendar = caseCalendar[caseId - 1];
     let districtObj;
     if (repeatOffenderCaseIDs.includes(caseId) || ringCaseIDs.includes(caseId)) {
       districtObj = districts[0];
     } else {
-      districtObj = districts[(caseId - 1) % districts.length];
+      districtObj = weightedChoice(districts, districtWeights);
     }
 
     const distUnits = units.filter(u => u.distId === districtObj.id);
-    const unitObj = distUnits[(caseId - 1) % distUnits.length];
+    const unitWeights = distUnits.map((_, index) => Math.max(1, distUnits.length + 1 - index));
+    const unitObj = weightedChoice(distUnits, unitWeights);
 
-    const crimeSubHeadObj = crimeSubHeads[(caseId - 1) % crimeSubHeads.length];
-    const gravityObj = gravities[(caseId - 1) % gravities.length];
-    const caseStatusObj = caseStatuses[(caseId - 1) % caseStatuses.length];
-    const categoryObj = categories[(caseId - 1) % categories.length];
+    let crimeHeadObj = weightedChoice(crimeHeads, headWeightsByMonth[calendar.month - 1]);
+    if (repeatOffenderCaseIDs.includes(caseId) || ringCaseIDs.includes(caseId)) crimeHeadObj = crimeHeads[0];
+    const headSubHeads = crimeSubHeads.filter(item => item.headId === crimeHeadObj.id);
+    let crimeSubHeadObj = weightedChoice(headSubHeads, subHeadWeights[crimeHeadObj.id]);
+    if (repeatOffenderCaseIDs.includes(caseId) || ringCaseIDs.includes(caseId)) crimeSubHeadObj = crimeSubHeads[0];
+
+    let gravityWeights = [7, 25, 68];
+    if (crimeSubHeadObj.id === 4) gravityWeights = [82, 17, 1];
+    if ([5, 10].includes(crimeSubHeadObj.id)) gravityWeights = [25, 62, 13];
+    if ([6, 7, 8].includes(crimeSubHeadObj.id)) gravityWeights = [5, 28, 67];
+    const gravityObj = weightedChoice(gravities, gravityWeights);
+
+    const monthsOld = 12 - calendar.month;
+    const statusWeights = monthsOld >= 8 ? [14, 27, 25, 29, 5]
+      : monthsOld >= 4 ? [31, 28, 22, 14, 5]
+        : [59, 21, 12, 4, 4];
+    const caseStatusObj = weightedChoice(caseStatuses, statusWeights);
+    const categoryObj = weightedChoice(categories, [92, 3, 3, 2]);
 
     const unitEmps = employees.filter(e => e.unitId === unitObj.id);
     const policePerson = unitEmps.length > 0 ? unitEmps[0] : employees[0];
@@ -313,25 +383,38 @@ function generateSeedData() {
     const crimeNo = `1${pad(districtObj.id, 4)}${pad(unitObj.id, 4)}2024${pad(caseId, 5)}`;
     const caseNo = `2024${pad(caseId, 5)}`;
 
-    const month = pad(((caseId % 12) + 1), 2);
-    const day = pad(((caseId % 28) + 1), 2);
-    const hour = pad(((caseId % 24)), 2);
+    const month = pad(calendar.month, 2);
+    const day = pad(calendar.day, 2);
+    let incidentHour;
+    if (crimeSubHeadObj.id === 2) incidentHour = weightedChoice([0, 1, 2, 3, 22, 23], [12, 18, 21, 16, 14, 19]);
+    else if ([3, 10].includes(crimeSubHeadObj.id)) incidentHour = weightedChoice([18, 19, 20, 21, 22, 23], [10, 18, 23, 21, 17, 11]);
+    else if ([6, 7, 8].includes(crimeSubHeadObj.id)) incidentHour = weightedChoice([9, 10, 11, 12, 14, 15, 16, 17], [8, 12, 15, 14, 15, 14, 12, 10]);
+    else incidentHour = getRandomInt(6, 23);
+    const hour = pad(incidentHour, 2);
     const regDateStr = `2024-${month}-${day}`;
     const incidentFromStr = `2024-${month}-${day} ${hour}:00:00`;
-    const incidentToStr = `2024-${month}-${day} ${pad((parseInt(hour)+2)%24, 2)}:00:00`;
+    const incidentToStr = `2024-${month}-${day} ${pad((incidentHour + getRandomInt(1, 3)) % 24, 2)}:00:00`;
 
-    const lat = (unitObj.lat + ((caseId % 20) - 10) * 0.001).toFixed(6);
-    const lng = (unitObj.lng + ((caseId % 20) - 10) * 0.001).toFixed(6);
+    const lat = (unitObj.lat + (random() - 0.5) * 0.022).toFixed(6);
+    const lng = (unitObj.lng + (random() - 0.5) * 0.022).toFixed(6);
 
-    const briefFacts = `Incident reported at ${unitObj.name}. Initial investigation launched by IO ${policePerson.name}.`;
+    const locationPool = districtObj.id === 1 ? locationsByUnit.urban : locationsByUnit.regional;
+    const location = getRandomElement(locationPool);
+    const factTemplates = [
+      `${crimeSubHeadObj.name} reported ${location} within ${unitObj.name} limits. ${policePerson.name} recorded statements and initiated scene verification.`,
+      `Control room information regarding ${crimeSubHeadObj.name.toLowerCase()} was received from ${location}. IO ${policePerson.name} opened the investigation and secured preliminary evidence.`,
+      `Complainant reported a suspected ${crimeSubHeadObj.name.toLowerCase()} incident ${location}. The matter was registered at ${unitObj.name} and assigned to ${policePerson.name}.`,
+      `${unitObj.name} registered the case after an incident ${location}. Initial CCTV, witness, and digital-evidence checks were assigned to IO ${policePerson.name}.`,
+    ];
+    const briefFacts = getRandomElement(factTemplates);
 
     addStmt(
       `INSERT INTO CaseMaster (CaseMasterID, CrimeNo, CaseNo, CrimeRegisteredDate, PolicePersonID, PoliceStationID, CaseCategoryID, GravityOffenceID, CrimeMajorHeadID, CrimeMinorHeadID, CaseStatusID, CourtID, IncidentFromDate, IncidentToDate, InfoReceivedPSDate, latitude, longitude, BriefFacts) VALUES (` +
-      `${caseId}, ${sqlStr(crimeNo)}, ${sqlStr(caseNo)}, ${sqlStr(regDateStr)}, ${policePerson.id}, ${unitObj.id}, ${categoryObj.id}, ${gravityObj.id}, ${crimeSubHeadObj.headId}, ${crimeSubHeadObj.id}, ${caseStatusObj.id}, ${courtObj.id}, ${sqlStr(incidentFromStr)}, ${sqlStr(incidentToStr)}, ${sqlStr(incidentFromStr)}, ${lat}, ${lng}, ${sqlStr(briefFacts)});`
+      `${caseId}, ${sqlStr(crimeNo)}, ${sqlStr(caseNo)}, ${sqlStr(regDateStr)}, ${policePerson.id}, ${unitObj.id}, ${categoryObj.id}, ${gravityObj.id}, ${crimeHeadObj.id}, ${crimeSubHeadObj.id}, ${caseStatusObj.id}, ${courtObj.id}, ${sqlStr(incidentFromStr)}, ${sqlStr(incidentToStr)}, ${sqlStr(incidentFromStr)}, ${lat}, ${lng}, ${sqlStr(briefFacts)});`
     );
 
     // 21. Inv_OccuranceTime (1:1)
-    const place = `Near Junction, ${unitObj.name.replace(' Police Station', '')}`;
+    const place = `${location.replace(/^./, char => char.toUpperCase())}, ${unitObj.name.replace(' Police Station', '')}`;
     addStmt(
       `INSERT INTO Inv_OccuranceTime (CaseMasterID, IncidentFromDate, IncidentToDate, latitude, longitude, PlaceOfOccurrence) VALUES (` +
       `${caseId}, ${sqlStr(incidentFromStr)}, ${sqlStr(incidentToStr)}, ${lat}, ${lng}, ${sqlStr(place)});`
@@ -339,9 +422,10 @@ function generateSeedData() {
 
     // 22. ComplainantDetails
     const compName = `${getRandomElement(complainantFirstNames)} ${getRandomElement(complainantLastNames)}`;
+    const compGender = random() < 0.46 ? 2 : 1;
     addStmt(
       `INSERT INTO ComplainantDetails (ComplainantID, CaseMasterID, ComplainantName, AgeYear, OccupationID, ReligionID, CasteID, GenderID) VALUES (` +
-      `${complainantIdCounter++}, ${caseId}, ${sqlStr(compName)}, ${getRandomInt(25, 65)}, 2, 1, 1, 1);`
+      `${complainantIdCounter++}, ${caseId}, ${sqlStr(compName)}, ${getRandomInt(19, 72)}, ${getRandomInt(1, occupations.length)}, ${getRandomInt(1, religions.length)}, ${getRandomInt(1, castes.length)}, ${compGender});`
     );
 
     // 23. ActSectionAssociation
@@ -353,9 +437,10 @@ function generateSeedData() {
 
     // 24. Victim
     const vicName = `${getRandomElement(victimFirstNames)} ${getRandomElement(complainantLastNames)}`;
+    const victimGender = random() < 0.48 ? 2 : 1;
     addStmt(
       `INSERT INTO Victim (VictimMasterID, CaseMasterID, VictimName, AgeYear, GenderID, VictimPolice) VALUES (` +
-      `${victimMasterIdCounter++}, ${caseId}, ${sqlStr(vicName)}, ${getRandomInt(20, 60)}, 1, '0');`
+      `${victimMasterIdCounter++}, ${caseId}, ${sqlStr(vicName)}, ${getRandomInt(16, 74)}, ${victimGender}, '0');`
     );
 
     // 25. Accused
@@ -379,11 +464,12 @@ function generateSeedData() {
         );
       }
     } else {
-      const numAccused = (caseId % 3 === 0) ? 2 : 1;
+      const numAccused = random() < 0.18 ? 2 : 1;
       for (let k = 0; k < numAccused; k++) {
         const accMasterId = accusedMasterIdCounter++;
         caseAccusedMasterIDs.push(accMasterId);
-        const accName = `${getRandomElement(accusedFirstNames)} ${getRandomElement(accusedLastNames)}`;
+        const uniqueInitial = String.fromCharCode(65 + ((caseId * 7 + k * 11) % 26));
+        const accName = `${getRandomElement(accusedFirstNames)} ${uniqueInitial}. ${getRandomElement(accusedLastNames)}`;
         addStmt(
           `INSERT INTO Accused (AccusedMasterID, CaseMasterID, AccusedName, AgeYear, GenderID, PersonID) VALUES (` +
           `${accMasterId}, ${caseId}, ${sqlStr(accName)}, ${getRandomInt(20, 45)}, 1, ${sqlStr('A' + (k + 1))});`
@@ -392,12 +478,14 @@ function generateSeedData() {
     }
 
     // 26. ArrestSurrender & 27. inv_arrestsurrenderaccused
-    if (caseId % 2 === 0 || repeatOffenderCaseIDs.includes(caseId) || ringCaseIDs.includes(caseId)) {
+    const arrestProbability = gravityObj.id === 1 ? 0.72 : gravityObj.id === 2 ? 0.55 : 0.34;
+    if (random() < arrestProbability || repeatOffenderCaseIDs.includes(caseId) || ringCaseIDs.includes(caseId)) {
       const arrestId = arrestSurrenderIdCounter++;
       const firstAccusedMasterId = caseAccusedMasterIDs[0];
+      const arrestDate = addDays(regDateStr, getRandomInt(0, gravityObj.id === 1 ? 12 : 35));
       addStmt(
         `INSERT INTO ArrestSurrender (ArrestSurrenderID, CaseMasterID, ArrestSurrenderTypeID, ArrestSurrenderDate, ArrestSurrenderStateId, ArrestSurrenderDistrictId, PoliceStationID, IOID, CourtID, AccusedMasterID, IsAccused, IsComplainantAccused) VALUES (` +
-        `${arrestId}, ${caseId}, 1, ${sqlStr(regDateStr)}, 1, ${districtObj.id}, ${unitObj.id}, ${policePerson.id}, ${courtObj.id}, ${firstAccusedMasterId}, 1, 0);`
+        `${arrestId}, ${caseId}, 1, ${sqlStr(arrestDate)}, 1, ${districtObj.id}, ${unitObj.id}, ${policePerson.id}, ${courtObj.id}, ${firstAccusedMasterId}, 1, 0);`
       );
 
       for (const accMasterId of caseAccusedMasterIDs) {
@@ -409,11 +497,13 @@ function generateSeedData() {
     }
 
     // 28. ChargesheetDetails
-    if (caseId % 3 === 0 || ringCaseIDs.includes(caseId)) {
+    const shouldChargeSheet = [2, 3, 4].includes(caseStatusObj.id) || (caseStatusObj.id === 1 && random() < 0.08) || ringCaseIDs.includes(caseId);
+    if (shouldChargeSheet) {
       const csId = csIdCounter++;
+      const chargeSheetDate = `${addDays(regDateStr, getRandomInt(28, 96))} ${pad(getRandomInt(9, 17), 2)}:00:00`;
       addStmt(
         `INSERT INTO ChargesheetDetails (CSID, CaseMasterID, csdate, cstype, PolicePersonID) VALUES (` +
-        `${csId}, ${caseId}, ${sqlStr(incidentFromStr)}, 'A', ${policePerson.id});`
+        `${csId}, ${caseId}, ${sqlStr(chargeSheetDate)}, 'A', ${policePerson.id});`
       );
     }
   }

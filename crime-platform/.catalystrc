@@ -21,7 +21,15 @@
           "idx": 1,
           "id": "60078654574",
           "name": "Development",
-          "type": 3
+          "type": 3,
+          "env_status": "Active",
+          "project_details": {
+            "project_name": "KSP-Crime-Intel",
+            "id": "49792000000013051",
+            "project_type": "Live"
+          },
+          "is_default": true,
+          "action_required": false
         }
       ]
     }

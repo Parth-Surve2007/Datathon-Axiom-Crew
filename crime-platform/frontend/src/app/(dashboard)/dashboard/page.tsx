@@ -18,83 +18,9 @@ import {
   Users,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-
-type RangeKey = "Week" | "Month" | "Quarter";
-
-const pulseData: Record<RangeKey, { labels: string[]; values: number[]; change: number; total: number; comparison: string }> = {
-  Week: {
-    labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-    values: [64, 83, 112, 78, 124, 96, 82],
-    change: 18,
-    total: 639,
-    comparison: "lower than last week",
-  },
-  Month: {
-    labels: ["W1", "W2", "W3", "W4"],
-    values: [612, 548, 684, 571],
-    change: 12,
-    total: 2415,
-    comparison: "lower than last month",
-  },
-  Quarter: {
-    labels: ["Apr", "May", "Jun"],
-    values: [2180, 1942, 1766],
-    change: 9,
-    total: 5888,
-    comparison: "lower than last quarter",
-  },
-};
-
-const investigations = [
-  {
-    id: "KSP-24-1843",
-    title: "Organized Vehicle Theft",
-    status: "High priority",
-    color: "#d9482b",
-    soft: "#fbeae5",
-    icon: ShieldAlert,
-    district: "Bengaluru East",
-    age: "12m ago",
-    tags: ["Syndicate link", "3 suspects"],
-    detail: "Three recent thefts share the same relay-attack signature. Electronic evidence points to an interstate network.",
-  },
-  {
-    id: "KSP-24-1791",
-    title: "Digital Lending Fraud",
-    status: "Investigating",
-    color: "#287a71",
-    soft: "#e5f1ef",
-    icon: Fingerprint,
-    district: "Mysuru City",
-    age: "2h ago",
-    tags: ["14 accounts", "Cyber cell"],
-    detail: "Transaction clustering has isolated fourteen mule accounts connected to two fraudulent lending applications.",
-  },
-  {
-    id: "KSP-24-1638",
-    title: "Warehouse Diversion",
-    status: "Charge-sheeted",
-    color: "#54779b",
-    soft: "#e8eef4",
-    icon: ShieldCheck,
-    district: "Hubballi-Dharwad",
-    age: "1d ago",
-    tags: ["Evidence sealed", "Court ready"],
-    detail: "Chargesheet review is complete with vehicle telemetry, CCTV correlation, and six verified witness statements.",
-  },
-];
-
-const fieldUnits = [
-  { initials: "NH", name: "Insp. Naveen Hegde", role: "Indiranagar Station", state: "On scene", color: "#d9482b" },
-  { initials: "GS", name: "PSI Gita Shekar", role: "Cyber Crime Unit", state: "Available", color: "#54779b" },
-];
-
-const pipeline = [
-  { label: "FIRs registered", value: 64, color: "#aeb7bf", levels: [34, 58, 44, 76, 60, 88, 55, 70, 46, 82] },
-  { label: "Investigations", value: 42, color: "#d9482b", levels: [62, 38, 78, 55, 88, 72, 48, 92, 67, 84] },
-  { label: "Charge-sheets", value: 18, color: "#182033", levels: [45, 74, 58, 86, 62, 94, 70, 52, 80, 64] },
-  { label: "Closed", value: 10, color: "#287a71", levels: [68, 42, 82, 58, 90, 72, 48, 86, 62, 78] },
-];
+import { LiveDataState } from "@/components/LiveDataState";
+import { useLiveIntelligence } from "@/hooks/useLiveIntelligence";
+import type { RangeKey } from "@/lib/intelligence";
 
 const cardVariants = {
   hidden: { opacity: 0, y: 22, scale: 0.982 },
@@ -131,14 +57,25 @@ function CountUp({ value, suffix = "", duration = 900 }: { value: number; suffix
 
 export default function Dashboard() {
   const reduceMotion = useReducedMotion();
+  const { data, error, loading, refresh } = useLiveIntelligence();
   const [range, setRange] = useState<RangeKey>("Week");
   const [activePoint, setActivePoint] = useState(4);
-  const [expandedCase, setExpandedCase] = useState(investigations[0].id);
+  const [expandedCase, setExpandedCase] = useState("");
   const [assignedUnits, setAssignedUnits] = useState<string[]>([]);
   const [briefReady, setBriefReady] = useState(false);
-  const currentPulse = pulseData[range];
+  const currentPulse = data?.pulse[range] ?? { labels: [], values: [] };
+  const total = currentPulse.values.reduce((sum, value) => sum + value, 0);
+  const midpoint = Math.max(1, Math.floor(currentPulse.values.length / 2));
+  const previous = currentPulse.values.slice(0, midpoint).reduce((sum, value) => sum + value, 0);
+  const recent = currentPulse.values.slice(midpoint).reduce((sum, value) => sum + value, 0);
+  const change = previous ? Math.round(((recent - previous) / previous) * 100) : 0;
+  const investigations = (data?.investigations ?? []).map((item, index) => ({ ...item, color: ["#d9482b", "#287a71", "#54779b"][index % 3], soft: ["#fbeae5", "#e5f1ef", "#e8eef4"][index % 3], icon: [ShieldAlert, Fingerprint, ShieldCheck][index % 3] }));
+  const fieldUnits = (data?.fieldUnits ?? []).map((item, index) => ({ ...item, color: ["#d9482b", "#54779b", "#287a71"][index % 3] }));
+  const pipeline = (data?.pipeline ?? []).map((item, index) => ({ ...item, color: ["#aeb7bf", "#d9482b", "#182033", "#287a71"][index % 4], levels: currentPulse.values.slice(0, 10).map((value) => total ? Math.max(22, Math.round((value / Math.max(...currentPulse.values, 1)) * 100)) : 22) }));
 
-  const maxValue = useMemo(() => Math.max(...currentPulse.values), [currentPulse.values]);
+  const maxValue = useMemo(() => Math.max(...currentPulse.values, 1), [currentPulse.values]);
+
+  if (loading || error || !data) return <LiveDataState loading={loading} error={error} onRetry={refresh} />;
 
   return (
     <motion.div
@@ -183,7 +120,7 @@ export default function Dashboard() {
                 value={range}
                 onChange={(event) => {
                   const nextRange = event.target.value as RangeKey;
-                  const nextValues = pulseData[nextRange].values;
+                  const nextValues = data.pulse[nextRange].values;
                   setRange(nextRange);
                   setActivePoint(nextValues.indexOf(Math.max(...nextValues)));
                 }}
@@ -200,12 +137,12 @@ export default function Dashboard() {
           <div className="mt-5 grid min-h-[285px] grid-cols-1 gap-4 sm:grid-cols-[150px_1fr] sm:items-end">
             <div className="order-2 pb-5 sm:order-1 sm:pb-7">
               <motion.p key={range} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="text-[42px] font-semibold leading-none tracking-[-0.06em] text-[#182033]">
-                <CountUp value={currentPulse.change} suffix="%" />
+                <CountUp value={Math.abs(change)} suffix="%" />
               </motion.p>
-              <p className="mt-2 max-w-[140px] text-[11px] leading-snug text-[#7d858f]">Incident load is {currentPulse.comparison}.</p>
+              <p className="mt-2 max-w-[140px] text-[11px] leading-snug text-[#7d858f]">Incident load is {change >= 0 ? "higher" : "lower"} in the latest segment.</p>
               <div className="mt-4 flex items-center gap-2 text-[10px] font-semibold text-[#287a71]">
                 <span className="flex size-5 items-center justify-center rounded-full bg-[#e5f1ef]">↓</span>
-                <span><CountUp value={currentPulse.total} /> total reports</span>
+                <span><CountUp value={total} /> total reports</span>
               </div>
             </div>
 
@@ -274,7 +211,7 @@ export default function Dashboard() {
 
           <div className="overflow-hidden rounded-[28px] border border-[#d7dde2] bg-white/30 sm:rounded-[32px]">
             {investigations.map((investigation, index) => {
-              const open = investigation.id === expandedCase;
+              const open = investigation.id === (expandedCase || investigations[0]?.id);
               const Icon = investigation.icon;
               return (
                 <motion.article key={investigation.id} layout="position" className={`${index ? "border-t border-[#d7dde2]" : ""} bg-white/35`}>

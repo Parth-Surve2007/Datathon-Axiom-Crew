@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
   Activity,
@@ -16,8 +16,10 @@ import {
   Route,
   ShieldAlert,
 } from "lucide-react";
+import { LiveDataState } from "@/components/LiveDataState";
+import { useLiveIntelligence } from "@/hooks/useLiveIntelligence";
 
-type IncidentType = "Theft" | "Cyber" | "Violent" | "Property";
+type IncidentType = "Property" | "Cyber" | "Violent" | "Financial" | "Narcotic";
 
 type Hotspot = {
   id: string;
@@ -33,79 +35,6 @@ type Hotspot = {
   summary: string;
   updated: string;
 };
-
-const hotspots: Hotspot[] = [
-  {
-    id: "majestic",
-    label: "Majestic Transit Hub",
-    district: "Central Bengaluru",
-    station: "Upparpet Police Station",
-    type: "Theft",
-    cases: 18,
-    change: "+22%",
-    risk: "Critical",
-    x: 36,
-    y: 54,
-    summary: "A repeat mobile-theft pattern is clustering around evening platform changes.",
-    updated: "6 min ago",
-  },
-  {
-    id: "whitefield",
-    label: "Whitefield Tech Corridor",
-    district: "Bengaluru East",
-    station: "Whitefield CEN Station",
-    type: "Cyber",
-    cases: 14,
-    change: "+11%",
-    risk: "Elevated",
-    x: 77,
-    y: 43,
-    summary: "Payment impersonation complaints share two recipient accounts and one device signature.",
-    updated: "14 min ago",
-  },
-  {
-    id: "indiranagar",
-    label: "Indiranagar 100 Feet Road",
-    district: "Bengaluru East",
-    station: "Indiranagar Police Station",
-    type: "Property",
-    cases: 9,
-    change: "-4%",
-    risk: "Watch",
-    x: 63,
-    y: 57,
-    summary: "Two-wheeler incidents are declining, though the 20:00–23:00 window remains active.",
-    updated: "23 min ago",
-  },
-  {
-    id: "koramangala",
-    label: "Koramangala Junction",
-    district: "Bengaluru South East",
-    station: "Koramangala Police Station",
-    type: "Violent",
-    cases: 7,
-    change: "+8%",
-    risk: "Elevated",
-    x: 58,
-    y: 75,
-    summary: "Late-night disturbance calls overlap with two open repeat-offender investigations.",
-    updated: "31 min ago",
-  },
-  {
-    id: "yelahanka",
-    label: "Yelahanka New Town",
-    district: "Bengaluru North",
-    station: "Yelahanka New Town Station",
-    type: "Theft",
-    cases: 5,
-    change: "-9%",
-    risk: "Watch",
-    x: 48,
-    y: 24,
-    summary: "Residential burglary reports are below baseline after targeted night patrols.",
-    updated: "42 min ago",
-  },
-];
 
 const roads = [
   { left: 8, top: 48, width: 84, rotate: -4, major: true },
@@ -127,7 +56,7 @@ const neighbourhoods = [
   { label: "SOUTH", left: 52, top: 84 },
 ];
 
-const filters: Array<"All" | IncidentType> = ["All", "Theft", "Cyber", "Violent", "Property"];
+const filters: Array<"All" | IncidentType> = ["All", "Property", "Cyber", "Violent", "Financial", "Narcotic"];
 const ranges = ["24h", "7d", "30d"] as const;
 const EASE = [0.22, 1, 0.36, 1] as const;
 
@@ -139,14 +68,13 @@ const riskTone = {
 
 export default function CrimeMap() {
   const reduceMotion = useReducedMotion();
+  const { data, error, loading, refresh } = useLiveIntelligence();
   const [filter, setFilter] = useState<(typeof filters)[number]>("All");
   const [range, setRange] = useState<(typeof ranges)[number]>("7d");
-  const [selectedId, setSelectedId] = useState(hotspots[0].id);
+  const [selectedId, setSelectedId] = useState("");
+  const hotspots: Hotspot[] = (data?.hotspots ?? []).map((item) => ({ ...item, type: `${item.type.charAt(0).toUpperCase()}${item.type.slice(1)}` as IncidentType }));
 
-  const filteredHotspots = useMemo(
-    () => hotspots.filter((hotspot) => filter === "All" || hotspot.type === filter),
-    [filter],
-  );
+  const filteredHotspots = hotspots.filter((hotspot) => filter === "All" || hotspot.type === filter);
 
   const selected = hotspots.find((hotspot) => hotspot.id === selectedId) ?? hotspots[0];
   const totalCases = filteredHotspots.reduce((total, hotspot) => total + hotspot.cases, 0);
@@ -156,6 +84,8 @@ export default function CrimeMap() {
     const firstMatch = hotspots.find((hotspot) => nextFilter === "All" || hotspot.type === nextFilter);
     if (firstMatch) setSelectedId(firstMatch.id);
   };
+
+  if (loading || error || !data) return <LiveDataState loading={loading} error={error} onRetry={refresh} />;
 
   return (
     <div className="space-y-5 pb-2 sm:space-y-6">

@@ -19,6 +19,7 @@ import {
   X,
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useLiveIntelligence } from "@/hooks/useLiveIntelligence";
 
 const navItems = [
   { name: "Overview", shortName: "Home", href: "/dashboard", icon: LayoutDashboard },
@@ -26,14 +27,6 @@ const navItems = [
   { name: "Analytics", shortName: "Data", href: "/analytics", icon: ChartNoAxesCombined },
   { name: "Geospatial", shortName: "Map", href: "/map", icon: MapPinned },
   { name: "Syndicates", shortName: "Graph", href: "/network", icon: Share2 },
-];
-
-const searchItems = [
-  { label: "FIR KSP-24-1843", meta: "Organized vehicle theft", href: "/dashboard" },
-  { label: "Indiranagar hotspot", meta: "Geospatial cluster", href: "/map" },
-  { label: "Rahul K. nexus", meta: "Person of interest", href: "/network" },
-  { label: "Vehicle theft trend", meta: "Analytics report", href: "/analytics" },
-  { label: "Ask KrimeAI", meta: "Intelligence assistant", href: "/chat" },
 ];
 
 function NavLink({
@@ -85,18 +78,25 @@ function NavLink({
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const { data } = useLiveIntelligence();
   const headerRef = useRef<HTMLElement>(null);
   const [query, setQuery] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
   const [noticeOpen, setNoticeOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const searchItems = useMemo(() => [
+    ...(data?.investigations.slice(0, 3).map((item) => ({ label: `FIR ${item.id}`, meta: item.title, href: "/dashboard" })) ?? []),
+    ...(data?.hotspots.slice(0, 2).map((item) => ({ label: item.label, meta: `${item.cases} cases · ${item.district}`, href: "/map" })) ?? []),
+    ...(data?.network.nodes.filter((node) => node.kind === "Person").slice(0, 2).map((node) => ({ label: node.label, meta: node.subtitle, href: "/network" })) ?? []),
+  ], [data]);
+  const notifications = data?.investigations.slice(0, 2) ?? [];
 
   const results = useMemo(() => {
     const normalized = query.trim().toLowerCase();
     if (!normalized) return searchItems.slice(0, 3);
     return searchItems.filter((item) => `${item.label} ${item.meta}`.toLowerCase().includes(normalized));
-  }, [query]);
+  }, [query, searchItems]);
 
   const closePanels = () => {
     setNoticeOpen(false);
@@ -243,7 +243,7 @@ export default function Sidebar() {
                 setProfileOpen(false);
                 setSearchOpen(false);
               }}
-              aria-label="Notifications, 2 unread"
+              aria-label={`Notifications, ${notifications.length} unread`}
               aria-expanded={noticeOpen}
               aria-haspopup="dialog"
               aria-controls="notice-popover"
@@ -278,15 +278,12 @@ export default function Sidebar() {
                 <motion.div id="notice-popover" role="dialog" aria-label="Notifications" initial={{ opacity: 0, y: -8, scale: 0.98 }} animate={{ opacity: 1, y: 8, scale: 1 }} exit={{ opacity: 0, y: -5, scale: 0.98 }} className="absolute right-0 top-full w-[min(340px,calc(100vw-2rem))] rounded-3xl border border-[#d7dde2] bg-white p-3 shadow-[0_22px_60px_rgba(24,32,51,.18)]">
                   <div className="flex items-center justify-between px-2 pb-2 pt-1">
                     <h2 className="text-sm font-semibold text-[#182033]">Live notifications</h2>
-                    <span className="rounded-full bg-[#fbeae5] px-2 py-1 text-[9px] font-bold uppercase tracking-wider text-[#d9482b]">2 new</span>
+                    <span className="rounded-full bg-[#fbeae5] px-2 py-1 text-[9px] font-bold uppercase tracking-wider text-[#d9482b]">{notifications.length} new</span>
                   </div>
-                  {[
-                    ["High-risk match detected", "Vehicle KA 03 MR 4821 · 4m"],
-                    ["FIR assigned to your unit", "KSP-24-1907 · 18m"],
-                  ].map(([title, meta], index) => (
-                    <motion.button key={title} initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: index * 0.06 }} className="flex w-full gap-3 rounded-2xl p-3 text-left hover:bg-[#f4f6f7]">
+                  {notifications.map((item, index) => (
+                    <motion.button key={item.id} initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: index * 0.06 }} className="flex w-full gap-3 rounded-2xl p-3 text-left hover:bg-[#f4f6f7]">
                       <span className={`mt-1.5 size-2 shrink-0 rounded-full ${index === 0 ? "bg-[#d9482b]" : "bg-[#75a7d3]"}`} />
-                      <span><span className="block text-xs font-semibold text-[#283043]">{title}</span><span className="mt-1 block text-[10px] text-[#858e98]">{meta}</span></span>
+                      <span><span className="block text-xs font-semibold text-[#283043]">{item.title}</span><span className="mt-1 block text-[10px] text-[#858e98]">FIR {item.id} · {item.status}</span></span>
                     </motion.button>
                   ))}
                 </motion.div>

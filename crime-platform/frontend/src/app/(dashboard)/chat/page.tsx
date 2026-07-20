@@ -28,6 +28,8 @@ import {
   useRef,
   useState,
 } from "react";
+import { catalystApiBase } from "@/lib/intelligence";
+import { useLiveIntelligence } from "@/hooks/useLiveIntelligence";
 
 type MessageSender = "bot" | "user";
 
@@ -39,25 +41,12 @@ type ChatMessage = {
   hasCard?: boolean;
 };
 
-const seededMessages: ChatMessage[] = [
+const initialMessages: ChatMessage[] = [
   {
     id: 1,
     sender: "bot",
     text: "KrimeAI Node Initialized. Ready for queries.",
     timestamp: "10:00:01",
-  },
-  {
-    id: 2,
-    sender: "user",
-    text: "Scan recent mobile thefts in Majestic sector over last 30 days.",
-    timestamp: "10:02:15",
-  },
-  {
-    id: 3,
-    sender: "bot",
-    text: "Processing... 24 cases identified. Extracting pattern data.",
-    timestamp: "10:02:17",
-    hasCard: true,
   },
 ];
 
@@ -77,12 +66,12 @@ const formatTimestamp = () =>
 
 export default function Chat() {
   const reduceMotion = useReducedMotion();
-  const [messages, setMessages] = useState<ChatMessage[]>(seededMessages);
+  const { data } = useLiveIntelligence();
+  const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
   const [draft, setDraft] = useState("");
   const [isResponding, setIsResponding] = useState(false);
   const [downloaded, setDownloaded] = useState(false);
-  const messageId = useRef(4);
-  const responseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const messageId = useRef(2);
   const downloadTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const threadRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -99,17 +88,16 @@ export default function Chat() {
 
   useEffect(
     () => () => {
-      if (responseTimer.current) clearTimeout(responseTimer.current);
       if (downloadTimer.current) clearTimeout(downloadTimer.current);
     },
     [],
   );
 
-  const submitMessage = (event: FormEvent<HTMLFormElement>) => {
+  const submitMessage = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const query = draft.trim();
 
-    if (!query || isResponding || responseTimer.current) return;
+    if (!query || isResponding) return;
 
     const userMessage: ChatMessage = {
       id: messageId.current++,
@@ -122,21 +110,16 @@ export default function Chat() {
     setDraft("");
     setIsResponding(true);
 
-    responseTimer.current = setTimeout(
-      () => {
-        const acknowledgement: ChatMessage = {
-          id: messageId.current++,
-          sender: "bot",
-          text: "Acknowledged. I’ve added that request to this local session and prepared it for intelligence review.",
-          timestamp: formatTimestamp(),
-        };
-
-        setMessages((current) => [...current, acknowledgement]);
-        setIsResponding(false);
-        responseTimer.current = null;
-      },
-      reduceMotion ? 180 : 900,
-    );
+    try {
+      const response = await fetch(`${catalystApiBase}/chat`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ query }) });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.detail || result.error || "Catalyst query failed");
+      setMessages((current) => [...current, { id: messageId.current++, sender: "bot", text: result.answer, timestamp: formatTimestamp(), hasCard: true }]);
+    } catch (caught) {
+      setMessages((current) => [...current, { id: messageId.current++, sender: "bot", text: caught instanceof Error ? caught.message : "Unable to reach Catalyst.", timestamp: formatTimestamp() }]);
+    } finally {
+      setIsResponding(false);
+    }
   };
 
   const handleInputKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
@@ -154,12 +137,12 @@ export default function Chat() {
   const downloadTranscript = () => {
     const transcript = [
       "KRIMEAI INTELLIGENCE TRANSCRIPT",
-      "Local session · Majestic sector",
+      `Local session · ${data?.source || "Catalyst"}`,
       "",
       ...messages.map((message) => {
         const speaker = message.sender === "bot" ? "KrimeAI" : "Officer";
         const result = message.hasCard
-          ? "\n    Query result: 24 records found · 94% confidence"
+          ? `\n    Query result: ${data?.summary.totalCases ?? 0} live FIR records`
           : "";
         return `[${message.timestamp}] ${speaker}\n${message.text}${result}`;
       }),
@@ -402,7 +385,7 @@ export default function Chat() {
                               </span>
                               <div>
                                 <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-[#72808d]">Query result</p>
-                                <h3 className="mt-0.5 text-sm font-semibold tracking-[-0.025em] text-[#182033]">Majestic theft matrix</h3>
+                                <h3 className="mt-0.5 text-sm font-semibold tracking-[-0.025em] text-[#182033]">Catalyst intelligence result</h3>
                               </div>
                             </div>
                             <span className="rounded-full bg-white/75 px-2.5 py-1 text-[8px] font-bold uppercase tracking-wider text-[#287a71]">Pattern found</span>
@@ -417,7 +400,7 @@ export default function Chat() {
                                 transition={{ delay: reduceMotion ? 0 : 0.7 }}
                                 className="mt-1 text-2xl font-semibold tracking-[-0.055em] text-[#182033]"
                               >
-                                24
+                                {data?.summary.totalCases ?? 0}
                               </motion.p>
                             </div>
                             <div className="border-l border-[#d5e0e7] p-3.5 sm:p-4">
@@ -428,13 +411,13 @@ export default function Chat() {
                                 transition={{ delay: reduceMotion ? 0 : 0.78 }}
                                 className="mt-1 text-2xl font-semibold tracking-[-0.055em] text-[#d9482b]"
                               >
-                                94%
+                                {data ? "Live" : "—"}
                               </motion.p>
                             </div>
                           </div>
 
                           <div className="relative mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                            <p className="text-[9px] leading-relaxed text-[#6c7884]">12 recurring locations · 7 linked devices</p>
+                            <p className="text-[9px] leading-relaxed text-[#6c7884]">{data?.hotspots.length ?? 0} station clusters · {data?.network.edges.length ?? 0} entity links</p>
                             <Link
                               href="/map"
                               className="group flex min-h-9 items-center justify-center gap-2 rounded-full bg-[#182033] px-3.5 text-[9px] font-semibold text-white shadow-sm transition-colors hover:bg-[#d9482b]"
@@ -552,22 +535,22 @@ export default function Chat() {
               <span className="rounded-full bg-[#eef1f3] px-2 py-1 text-[8px] font-bold uppercase tracking-[0.12em] text-[#69747f]">Session 04</span>
             </div>
             <p className="mt-5 text-[9px] font-bold uppercase tracking-[0.18em] text-[#9199a2]">Working set</p>
-            <h2 id="working-set-title" className="mt-1 text-lg font-semibold tracking-[-0.035em] text-[#182033]">Majestic mobile thefts</h2>
-            <p className="mt-2 text-[10px] leading-relaxed text-[#77818c]">A focused thirty-day review across transit, market, and adjoining station records.</p>
+            <h2 id="working-set-title" className="mt-1 text-lg font-semibold tracking-[-0.035em] text-[#182033]">Catalyst FIR register</h2>
+            <p className="mt-2 text-[10px] leading-relaxed text-[#77818c]">Queries run against the current records in your Development Data Store.</p>
 
             <dl className="mt-5 grid grid-cols-2 overflow-hidden rounded-2xl border border-[#e0e5e9] bg-[#f5f7f8]">
               <div className="p-3.5">
                 <dt className="text-[8px] uppercase tracking-wider text-[#87909a]">Period</dt>
-                <dd className="mt-1 text-xs font-semibold text-[#283245]">30 days</dd>
+                <dd className="mt-1 text-xs font-semibold text-[#283245]">All indexed</dd>
               </div>
               <div className="border-l border-[#dde3e7] p-3.5">
                 <dt className="text-[8px] uppercase tracking-wider text-[#87909a]">Records</dt>
-                <dd className="mt-1 text-xs font-semibold text-[#d9482b]">24 found</dd>
+                <dd className="mt-1 text-xs font-semibold text-[#d9482b]">{data?.summary.totalCases ?? "—"} found</dd>
               </div>
             </dl>
 
             <div className="mt-4 flex flex-wrap gap-2">
-              {["Mobile theft", "Majestic", "High confidence"].map((tag) => (
+              {[data?.source || "Catalyst", `${data?.summary.highPriority ?? 0} high priority`, `${data?.summary.arrests ?? 0} arrests`].map((tag) => (
                 <span key={tag} className="rounded-full bg-[#e9eff3] px-2.5 py-1.5 text-[8px] font-semibold text-[#607587]">{tag}</span>
               ))}
             </div>

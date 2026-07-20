@@ -24,24 +24,8 @@ import {
   ShieldAlert,
   Sparkles,
 } from "lucide-react";
-
-const data = [
-  { name: "Jan", thefts: 400, assault: 240, fraud: 150 },
-  { name: "Feb", thefts: 300, assault: 139, fraud: 220 },
-  { name: "Mar", thefts: 200, assault: 980, fraud: 229 },
-  { name: "Apr", thefts: 278, assault: 390, fraud: 200 },
-  { name: "May", thefts: 189, assault: 480, fraud: 218 },
-  { name: "Jun", thefts: 239, assault: 380, fraud: 250 },
-];
-
-const trendData = [
-  { name: "W1", incidents: 120 },
-  { name: "W2", incidents: 132 },
-  { name: "W3", incidents: 101 },
-  { name: "W4", incidents: 134 },
-  { name: "W5", incidents: 90 },
-  { name: "W6", incidents: 190 },
-];
+import { LiveDataState } from "@/components/LiveDataState";
+import { useLiveIntelligence } from "@/hooks/useLiveIntelligence";
 
 type PeriodKey = "six-months" | "year-to-date";
 
@@ -49,29 +33,6 @@ const periodLabels: Record<PeriodKey, string> = {
   "six-months": "Last 6 months",
   "year-to-date": "This year",
 };
-
-const categoryMeta = [
-  { key: "thefts" as const, label: "Thefts", color: "#75a7d3", soft: "#e8f0f7" },
-  { key: "assault" as const, label: "Assault", color: "#d9482b", soft: "#fbeae5" },
-  { key: "fraud" as const, label: "Fraud", color: "#182033", soft: "#e8eaed" },
-];
-
-const monthlyTotals = data.map((month) => ({
-  name: month.name,
-  value: month.thefts + month.assault + month.fraud,
-}));
-
-const categoryTotals = categoryMeta.map((category) => ({
-  ...category,
-  value: data.reduce((total, month) => total + month[category.key], 0),
-}));
-
-const totalIncidents = categoryTotals.reduce((total, category) => total + category.value, 0);
-const peakMonth = monthlyTotals.reduce((peak, month) => (month.value > peak.value ? month : peak));
-const averagePerMonth = Math.round(totalIncidents / data.length);
-const latestWeek = trendData.at(-1)?.incidents ?? 0;
-const previousWeek = trendData.at(-2)?.incidents ?? 0;
-const weeklyChange = previousWeek ? Math.round(((latestWeek - previousWeek) / previousWeek) * 100) : 0;
 
 const EASE_OUT = [0.22, 1, 0.36, 1] as const;
 
@@ -111,18 +72,28 @@ function formatNumber(value: number) {
 
 export default function Analytics() {
   const reduceMotion = useReducedMotion();
+  const { data: intelligence, error, loading, refresh } = useLiveIntelligence();
   const [period, setPeriod] = useState<PeriodKey>("six-months");
+  const rawData = intelligence?.analytics.monthly ?? [];
+  const rawTrend = intelligence?.analytics.trend ?? [];
+  const data = period === "six-months" ? rawData.slice(-6) : rawData;
+  const trendData = period === "six-months" ? rawTrend.slice(-6) : rawTrend;
+  const categoryMeta = intelligence?.analytics.categories ?? [];
+  const categoryTotals = categoryMeta.map((category) => ({ ...category, value: data.reduce((sum, month) => sum + Number(month[category.key] || 0), 0) })).sort((a, b) => b.value - a.value);
+  const monthlyTotals = data.map((month) => ({ name: month.name, value: categoryMeta.reduce((sum, category) => sum + Number(month[category.key] || 0), 0) }));
+  const totalIncidents = categoryTotals.reduce((sum, category) => sum + category.value, 0);
+  const peakMonth = monthlyTotals.reduce((peak, month) => month.value > peak.value ? month : peak, { name: "—", value: 0 });
+  const averagePerMonth = data.length ? Math.round(totalIncidents / data.length) : 0;
+  const latestWeek = trendData.at(-1)?.incidents ?? 0;
+  const previousWeek = trendData.at(-2)?.incidents ?? 0;
+  const weeklyChange = previousWeek ? Math.round(((latestWeek - previousWeek) / previousWeek) * 100) : 0;
+
+  if (loading || error || !intelligence) return <LiveDataState loading={loading} error={error} onRetry={refresh} />;
 
   const exportReport = () => {
     const rows = [
-      ["Month", "Thefts", "Assault", "Fraud", "Total"],
-      ...data.map((month) => [
-        month.name,
-        month.thefts,
-        month.assault,
-        month.fraud,
-        month.thefts + month.assault + month.fraud,
-      ]),
+      ["Month", ...categoryMeta.map((category) => category.label), "Total"],
+      ...data.map((month) => [month.name, ...categoryMeta.map((category) => month[category.key]), categoryMeta.reduce((sum, category) => sum + Number(month[category.key] || 0), 0)]),
     ];
     const csv = rows.map((row) => row.join(",")).join("\n");
     const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
@@ -174,7 +145,7 @@ export default function Analytics() {
           {
             label: "Recorded incidents",
             value: formatNumber(totalIncidents),
-            detail: "Across six monthly cohorts",
+            detail: `Across ${data.length} monthly cohorts`,
             icon: Activity,
             accent: "#d9482b",
             levels: [42, 60, 48, 72, 58, 88, 64, 80],
@@ -198,7 +169,7 @@ export default function Analytics() {
           {
             label: "Latest acceleration",
             value: `+${weeklyChange}%`,
-            detail: `${formatNumber(latestWeek)} incidents recorded in W6`,
+            detail: `${formatNumber(latestWeek)} incidents recorded in ${trendData.at(-1)?.name ?? "latest period"}`,
             icon: ArrowUpRight,
             accent: "#287a71",
             levels: [50, 56, 44, 58, 38, 100, 74, 86],
@@ -260,7 +231,7 @@ export default function Analytics() {
                 </div>
               </div>
               <p className="mt-2 max-w-lg text-[10px] leading-relaxed text-[#7b838d] sm:ml-[46px] sm:text-[11px]">
-                Monthly registered volume, stacked by the three monitored crime categories.
+                Monthly registered volume, stacked across the five monitored crime categories.
               </p>
             </div>
 
@@ -304,9 +275,7 @@ export default function Analytics() {
                     <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: "#737d88", fontSize: 10, fontWeight: 600 }} dy={10} />
                     <YAxis axisLine={false} tickLine={false} tick={{ fill: "#929aa3", fontSize: 9 }} />
                     <Tooltip cursor={{ fill: "rgba(117,167,211,.08)", radius: 12 }} contentStyle={tooltipStyle} labelStyle={{ color: "#182033", fontWeight: 700, marginBottom: 5 }} />
-                    <Bar dataKey="thefts" name="Thefts" stackId="categories" fill="#75a7d3" radius={[0, 0, 7, 7]} isAnimationActive={!reduceMotion} animationBegin={80} animationDuration={900} animationEasing="ease-out" />
-                    <Bar dataKey="assault" name="Assault" stackId="categories" fill="#d9482b" isAnimationActive={!reduceMotion} animationBegin={180} animationDuration={980} animationEasing="ease-out" />
-                    <Bar dataKey="fraud" name="Fraud" stackId="categories" fill="#182033" radius={[7, 7, 0, 0]} isAnimationActive={!reduceMotion} animationBegin={280} animationDuration={1060} animationEasing="ease-out" />
+                    {categoryMeta.map((category, index) => <Bar key={category.key} dataKey={category.key} name={category.label} stackId="categories" fill={category.color} radius={index === categoryMeta.length - 1 ? [7, 7, 0, 0] : undefined} isAnimationActive={!reduceMotion} animationBegin={80 + index * 100} animationDuration={900 + index * 80} animationEasing="ease-out" />)}
                   </BarChart>
                 </ResponsiveContainer>
               </motion.div>
@@ -342,7 +311,7 @@ export default function Analytics() {
                 <p className="text-[38px] font-semibold leading-none tracking-[-0.06em] text-[#182033]">{formatNumber(latestWeek)}</p>
                 <p className="mt-2 text-[9px] font-semibold uppercase tracking-[0.14em] text-[#7f8892]">Latest weekly total</p>
               </div>
-              <span className="rounded-full bg-[#fbeae5] px-3 py-1.5 text-[9px] font-bold text-[#d9482b]">+{weeklyChange}% vs W5</span>
+              <span className="rounded-full bg-[#fbeae5] px-3 py-1.5 text-[9px] font-bold text-[#d9482b]">{weeklyChange >= 0 ? "+" : ""}{weeklyChange}% vs prior month</span>
             </div>
 
             <div className="mt-2 h-[205px] min-w-0" role="img" aria-label="Weekly incident volume area chart">
@@ -393,15 +362,15 @@ export default function Analytics() {
                 <span className="flex items-center gap-2 text-[9px] font-bold uppercase tracking-[0.18em] text-[#596773]"><Sparkles size={13} /> Automated analysis</span>
                 <span className="rounded-full bg-white/55 px-2.5 py-1 text-[8px] font-bold uppercase tracking-wider text-[#52616e]">Live model</span>
               </div>
-              <h2 id="automated-analysis-title" className="mt-5 max-w-xs text-xl font-semibold leading-tight tracking-[-0.04em]">High variance is concentrated in W6.</h2>
+              <h2 id="automated-analysis-title" className="mt-5 max-w-xs text-xl font-semibold leading-tight tracking-[-0.04em]">Peak volume is concentrated in {peakMonth.name}.</h2>
               <p className="mt-2 text-[10px] leading-relaxed text-[#5e6c77]">
-                Incidents are up <span className="font-bold text-[#d9482b]">12%</span> against the six-week moving average, driven primarily by assault volume.
+                The latest period is <span className="font-bold text-[#d9482b]">{Math.abs(weeklyChange)}%</span> {weeklyChange >= 0 ? "above" : "below"} the prior period, with {categoryTotals[0]?.label.toLowerCase()} contributing the largest share.
               </p>
               <div className="mt-5 flex items-start gap-3 rounded-[20px] bg-white/55 p-3.5">
                 <span className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-[#fbeae5] text-[#d9482b]"><ShieldAlert size={14} /></span>
                 <div>
                   <p className="text-[10px] font-semibold text-[#293346]">Analyst attention recommended</p>
-                  <p className="mt-1 text-[9px] leading-relaxed text-[#6d7782]">Review March category clustering alongside the latest W6 surge.</p>
+                  <p className="mt-1 text-[9px] leading-relaxed text-[#6d7782]">Review {peakMonth.name} category clustering alongside the latest Catalyst records.</p>
                 </div>
               </div>
             </div>
@@ -416,7 +385,7 @@ export default function Analytics() {
       >
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-[9px] font-bold uppercase tracking-[0.18em] text-[#9299a2]">Six-month composition</p>
+            <p className="text-[9px] font-bold uppercase tracking-[0.18em] text-[#9299a2]">{periodLabels[period]} composition</p>
             <h2 id="composition-title" className="mt-1 text-lg font-semibold tracking-[-0.035em] text-[#182033]">Category contribution</h2>
           </div>
           <p className="text-[9px] text-[#818a94]">Share of {formatNumber(totalIncidents)} registered incidents</p>
@@ -424,7 +393,7 @@ export default function Analytics() {
 
         <div className="mt-6 grid gap-5 lg:grid-cols-3 lg:gap-7">
           {categoryTotals.map((category, index) => {
-            const share = Math.round((category.value / totalIncidents) * 100);
+            const share = totalIncidents ? Math.round((category.value / totalIncidents) * 100) : 0;
             return (
               <div key={category.key}>
                 <div className="flex items-center justify-between gap-3">

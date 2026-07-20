@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import type { LucideIcon } from "lucide-react";
 import {
@@ -18,11 +18,12 @@ import {
   RotateCcw,
   Search,
   ShieldAlert,
-  Smartphone,
   UserRound,
   UsersRound,
   Waypoints,
 } from "lucide-react";
+import { LiveDataState } from "@/components/LiveDataState";
+import { useLiveIntelligence } from "@/hooks/useLiveIntelligence";
 
 type NodeKind = "Person" | "Case" | "Asset" | "Place" | "Organisation";
 
@@ -46,125 +47,6 @@ type GraphEdge = {
   strength: number;
 };
 
-const nodes: GraphNode[] = [
-  {
-    id: "fir-042",
-    label: "FIR 042/2026",
-    subtitle: "Electronic relay theft",
-    kind: "Case",
-    icon: FileText,
-    risk: 87,
-    x: 49,
-    y: 47,
-    attributes: [
-      { label: "Station", value: "Indiranagar PS" },
-      { label: "Status", value: "Under investigation" },
-      { label: "Opened", value: "18 Jul 2026" },
-    ],
-  },
-  {
-    id: "arjun-rao",
-    label: "Arjun Rao",
-    subtitle: "Person of interest · P-0192",
-    kind: "Person",
-    icon: UserRound,
-    risk: 91,
-    x: 22,
-    y: 22,
-    attributes: [
-      { label: "Known aliases", value: "2 matched" },
-      { label: "Linked FIRs", value: "4 cases" },
-      { label: "Last signal", value: "Majestic · 09:18" },
-    ],
-  },
-  {
-    id: "maya-s",
-    label: "Maya S.",
-    subtitle: "Associate · P-0348",
-    kind: "Person",
-    icon: UserRound,
-    risk: 64,
-    x: 23,
-    y: 73,
-    attributes: [
-      { label: "Linked FIRs", value: "2 cases" },
-      { label: "Shared assets", value: "1 vehicle" },
-      { label: "Last verified", value: "16 Jul 2026" },
-    ],
-  },
-  {
-    id: "vehicle-8841",
-    label: "KA-03-MN-8841",
-    subtitle: "Grey hatchback · Vehicle",
-    kind: "Asset",
-    icon: Car,
-    risk: 78,
-    x: 75,
-    y: 20,
-    attributes: [
-      { label: "Owner", value: "Aurora Logistics" },
-      { label: "Camera hits", value: "7 in 30 days" },
-      { label: "Last seen", value: "HAL Road · 22:41" },
-    ],
-  },
-  {
-    id: "phone-4412",
-    label: "IMEI ·· 4412",
-    subtitle: "+91 ···· 3840 · Device",
-    kind: "Asset",
-    icon: Smartphone,
-    risk: 83,
-    x: 81,
-    y: 54,
-    attributes: [
-      { label: "Registered to", value: "Arjun Rao" },
-      { label: "Contact links", value: "14 relevant" },
-      { label: "Latest tower", value: "Domlur · 08:52" },
-    ],
-  },
-  {
-    id: "locker-12",
-    label: "Locker B-12",
-    subtitle: "Indiranagar storage site",
-    kind: "Place",
-    icon: MapPin,
-    risk: 72,
-    x: 59,
-    y: 81,
-    attributes: [
-      { label: "Jurisdiction", value: "Bengaluru East" },
-      { label: "Access events", value: "9 this month" },
-      { label: "Evidence", value: "Pending warrant" },
-    ],
-  },
-  {
-    id: "aurora",
-    label: "Aurora Logistics",
-    subtitle: "Transport operator · ORG-77",
-    kind: "Organisation",
-    icon: Building2,
-    risk: 58,
-    x: 48,
-    y: 12,
-    attributes: [
-      { label: "Registered assets", value: "12 vehicles" },
-      { label: "Linked persons", value: "6 profiles" },
-      { label: "Review state", value: "Enhanced monitoring" },
-    ],
-  },
-];
-
-const edges: GraphEdge[] = [
-  { id: "e1", source: "arjun-rao", target: "fir-042", label: "named in", strength: 94 },
-  { id: "e2", source: "maya-s", target: "fir-042", label: "associated", strength: 72 },
-  { id: "e3", source: "vehicle-8841", target: "fir-042", label: "seen near", strength: 89 },
-  { id: "e4", source: "phone-4412", target: "arjun-rao", label: "registered to", strength: 97 },
-  { id: "e5", source: "phone-4412", target: "maya-s", label: "14 contacts", strength: 82 },
-  { id: "e6", source: "locker-12", target: "fir-042", label: "evidence link", strength: 76 },
-  { id: "e7", source: "vehicle-8841", target: "maya-s", label: "rented by", strength: 68 },
-  { id: "e8", source: "aurora", target: "vehicle-8841", label: "registered owner", strength: 99 },
-];
-
 const filters: Array<"All" | NodeKind> = ["All", "Person", "Case", "Asset", "Place", "Organisation"];
 const EASE = [0.22, 1, 0.36, 1] as const;
 const GRAPH_WIDTH = 1000;
@@ -178,9 +60,10 @@ const kindTone: Record<NodeKind, { accent: string; soft: string }> = {
   Organisation: { accent: "#b47721", soft: "#f5ead7" },
 };
 
-function edgeGeometry(edge: GraphEdge) {
-  const source = nodes.find((node) => node.id === edge.source)!;
-  const target = nodes.find((node) => node.id === edge.target)!;
+function edgeGeometry(edge: GraphEdge, nodes: GraphNode[]) {
+  const source = nodes.find((node) => node.id === edge.source);
+  const target = nodes.find((node) => node.id === edge.target);
+  if (!source || !target) return null;
   const x1 = (source.x / 100) * GRAPH_WIDTH;
   const y1 = (source.y / 100) * GRAPH_HEIGHT;
   const x2 = (target.x / 100) * GRAPH_WIDTH;
@@ -200,33 +83,36 @@ function edgeGeometry(edge: GraphEdge) {
 
 export default function NetworkGraph() {
   const reduceMotion = useReducedMotion();
+  const { data, error, loading, refresh } = useLiveIntelligence();
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<(typeof filters)[number]>("All");
-  const [selectedId, setSelectedId] = useState("fir-042");
+  const [selectedId, setSelectedId] = useState("");
   const [riskOnly, setRiskOnly] = useState(false);
   const [zoom, setZoom] = useState(1);
+  const iconByKind: Record<NodeKind, LucideIcon> = { Person: UserRound, Case: FileText, Asset: Car, Place: MapPin, Organisation: Building2 };
+  const nodes: GraphNode[] = (data?.network.nodes ?? []).map((node) => ({ ...node, icon: iconByKind[node.kind] }));
+  const nodeIds = new Set(nodes.map((node) => node.id));
+  const edges: GraphEdge[] = (data?.network.edges ?? []).filter((edge) => nodeIds.has(edge.source) && nodeIds.has(edge.target));
 
   const selected = nodes.find((node) => node.id === selectedId) ?? nodes[0];
   const normalizedQuery = query.trim().toLowerCase();
 
-  const matchingIds = useMemo(() => {
-    return new Set(
-      nodes
-        .filter((node) => {
-          const matchesType = filter === "All" || node.kind === filter;
-          const matchesRisk = !riskOnly || node.risk >= 75;
-          const matchesQuery =
-            !normalizedQuery || `${node.label} ${node.subtitle} ${node.kind}`.toLowerCase().includes(normalizedQuery);
-          return matchesType && matchesRisk && matchesQuery;
-        })
-        .map((node) => node.id),
-    );
-  }, [filter, normalizedQuery, riskOnly]);
+  const matchingIds = new Set(
+    nodes
+      .filter((node) => {
+        const matchesType = filter === "All" || node.kind === filter;
+        const matchesRisk = !riskOnly || node.risk >= 75;
+        const matchesQuery = !normalizedQuery || `${node.label} ${node.subtitle} ${node.kind}`.toLowerCase().includes(normalizedQuery);
+        return matchesType && matchesRisk && matchesQuery;
+      })
+      .map((node) => node.id),
+  );
 
-  const directEdges = edges.filter((edge) => edge.source === selected.id || edge.target === selected.id);
-  const connectedNodes = directEdges.map((edge) => {
+  const directEdges = selected ? edges.filter((edge) => edge.source === selected.id || edge.target === selected.id) : [];
+  const connectedNodes = directEdges.flatMap((edge) => {
     const connectedId = edge.source === selected.id ? edge.target : edge.source;
-    return { edge, node: nodes.find((node) => node.id === connectedId)! };
+    const node = nodes.find((item) => item.id === connectedId);
+    return node ? [{ edge, node }] : [];
   });
 
   const resetView = () => {
@@ -234,8 +120,10 @@ export default function NetworkGraph() {
     setFilter("All");
     setRiskOnly(false);
     setZoom(1);
-    setSelectedId("fir-042");
+    setSelectedId(nodes[0]?.id ?? "");
   };
+
+  if (loading || error || !data || !selected) return <LiveDataState loading={loading} error={error || (!loading && data ? "No linked entities were found in Catalyst." : null)} onRetry={refresh} />;
 
   return (
     <div className="space-y-5 pb-2 sm:space-y-6">
@@ -285,10 +173,10 @@ export default function NetworkGraph() {
 
       <section aria-label="Network summary" className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         {[
-          { label: "Mapped entities", value: "27", icon: Waypoints, accent: "#182033" },
-          { label: "Strong links", value: "08", icon: NetworkIcon, accent: "#d9482b" },
-          { label: "Persons of interest", value: "06", icon: UsersRound, accent: "#75a7d3" },
-          { label: "AI confidence", value: "87%", icon: Activity, accent: "#287a71" },
+          { label: "Mapped entities", value: String(nodes.length), icon: Waypoints, accent: "#182033" },
+          { label: "Strong links", value: String(edges.filter((edge) => edge.strength >= 85).length).padStart(2, "0"), icon: NetworkIcon, accent: "#d9482b" },
+          { label: "Persons of interest", value: String(nodes.filter((node) => node.kind === "Person").length).padStart(2, "0"), icon: UsersRound, accent: "#75a7d3" },
+          { label: "Average risk", value: `${Math.round(nodes.reduce((sum, node) => sum + node.risk, 0) / Math.max(nodes.length, 1))}%`, icon: Activity, accent: "#287a71" },
         ].map((stat, index) => (
           <motion.article
             key={stat.label}
@@ -396,7 +284,8 @@ export default function NetworkGraph() {
               <div aria-hidden className="absolute left-1/2 top-1/2 size-[67%] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#182033]/[0.06]" />
 
               {edges.map((edge, index) => {
-                const geometry = edgeGeometry(edge);
+                const geometry = edgeGeometry(edge, nodes);
+                if (!geometry) return null;
                 const isDirect = edge.source === selected.id || edge.target === selected.id;
                 const isDimmed = !matchingIds.has(edge.source) && !matchingIds.has(edge.target);
 
