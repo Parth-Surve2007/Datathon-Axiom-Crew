@@ -6,7 +6,9 @@ const PAGE_SIZE = 300;
 const REQUIRED_TABLES = [
   'CaseMaster', 'Unit', 'District', 'Employee', 'CrimeHead', 'CrimeSubHead',
   'GravityOffence', 'CaseStatusMaster', 'Accused', 'ArrestSurrender',
-  'ChargesheetDetails',
+  'ChargesheetDetails', 'Victim', 'ComplainantDetails', 'Inv_OccuranceTime',
+  'ActSectionAssociation', 'Act', 'Section', 'OccupationMaster',
+  'ReligionMaster', 'CasteMaster',
 ];
 
 function flattenRow(value, target = {}) {

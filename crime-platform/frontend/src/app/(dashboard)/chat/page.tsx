@@ -62,10 +62,10 @@ const initialMessages: ChatMessage[] = [
 ];
 
 const suggestions = [
-  "Show repeat offenders with evidence",
-  "Which station is the top hotspot?",
-  "Give prevention intelligence",
-  "Summarize FIRs linked to cyber crime",
+  "Find similar cases for cyber crime",
+  "Suggest investigative leads",
+  "Build a case timeline",
+  "Show socio-demographic insights",
 ];
 
 const formatTimestamp = () =>
