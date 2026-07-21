@@ -21,7 +21,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             inset: 0,
             zIndex: 0,
             pointerEvents: "none",
-            backgroundImage: "url('/ksp-logo.png')",
+            backgroundImage: `url('${process.env.NEXT_PUBLIC_BASE_PATH ?? ''}/ksp-logo.png')`,
             backgroundRepeat: "no-repeat",
             backgroundPosition: "center center",
             backgroundSize: "42%",
