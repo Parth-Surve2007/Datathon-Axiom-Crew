@@ -57,7 +57,14 @@ export type IntelligencePayload = {
   };
 };
 
-export const catalystApiBase =
-  process.env.NEXT_PUBLIC_CATALYST_API_URL?.replace(/\/$/, "") ||
-  "http://localhost:3001/server/api_service";
+export const catalystApiBase = (() => {
+  if (typeof window !== "undefined") {
+    const isLocalhost = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+    if (isLocalhost) {
+      return "http://localhost:3001/server/api_service";
+    }
+    return "/server/api_service";
+  }
+  return process.env.NEXT_PUBLIC_CATALYST_API_URL?.replace(/\/$/, "") || "http://localhost:3001/server/api_service";
+})();
 
