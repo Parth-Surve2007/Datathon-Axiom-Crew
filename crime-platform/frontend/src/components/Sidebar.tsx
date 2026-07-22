@@ -8,6 +8,7 @@ import {
   Bell,
   ChartNoAxesCombined,
   ChevronDown,
+  FileStack,
   LayoutDashboard,
   LogOut,
   MapPinned,
@@ -25,6 +26,7 @@ const navItems = [
   { name: "Overview", shortName: "Home", href: "/dashboard", icon: LayoutDashboard },
   { name: "Intelligence", shortName: "Intel", href: "/chat", icon: MessageSquareText },
   { name: "Analytics", shortName: "Data", href: "/analytics", icon: ChartNoAxesCombined },
+  { name: "Reports", shortName: "Files", href: "/reports", icon: FileStack },
   { name: "Geospatial", shortName: "Map", href: "/map", icon: MapPinned },
   { name: "Syndicates", shortName: "Graph", href: "/network", icon: Share2 },
 ];
