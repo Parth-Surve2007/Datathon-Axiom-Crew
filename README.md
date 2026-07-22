@@ -78,6 +78,31 @@ datathon/
 
 ---
 
+## 🚀 Running Locally
+
+### Backend — Catalyst API Service (Port 3001)
+
+Run this from the repo root to open a new CMD window with the Catalyst service:
+
+```cmd
+start cmd /k "cd /d crime-platform\backend && catalyst serve --only functions:api_service --http 3001 --no-open"
+```
+
+> The Express API will be available at **http://localhost:3001**
+> Health check: **http://localhost:3001/health**
+
+### Frontend — Next.js Dev Server
+
+Run this from the repo root to open a second CMD window with the dev server:
+
+```cmd
+start cmd /k "cd /d crime-platform\frontend && npm run dev"
+```
+
+> The app will be available at **http://localhost:3000**
+
+---
+
 ### ⏳ What's Pending (Phase 2)
 - [ ] Database connection (Catalyst Data Store / PostgreSQL via pg)
 - [ ] JWT auth middleware + `/auth/login` route

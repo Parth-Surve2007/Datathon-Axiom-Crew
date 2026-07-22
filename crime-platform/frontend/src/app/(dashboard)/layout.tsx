@@ -13,6 +13,23 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <div aria-hidden className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
         <div className="ambient-orb absolute -left-32 top-20 size-[28rem] rounded-full bg-white/55 blur-[100px]" />
         <div className="ambient-orb-reverse absolute -right-40 bottom-[-12rem] size-[36rem] rounded-full bg-[#9dbbd3]/25 blur-[110px]" />
+        {/* KSP logo watermark — top-right, grayscale, blurred */}
+        <div
+          className="ksp-watermark"
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 0,
+            pointerEvents: "none",
+            backgroundImage: `url('${process.env.NEXT_PUBLIC_BASE_PATH ?? ''}/ksp-logo.png')`,
+            backgroundRepeat: "no-repeat",
+            backgroundPosition: "center center",
+            backgroundSize: "42%",
+            filter: "grayscale(1) blur(4px)",
+            opacity: 0.06,
+            mixBlendMode: "darken",
+          }}
+        />
       </div>
       <Sidebar />
       <main className="relative z-10 mx-auto w-full max-w-[1640px] px-4 pb-8 pt-5 sm:px-6 sm:pb-10 sm:pt-7 xl:px-8">
