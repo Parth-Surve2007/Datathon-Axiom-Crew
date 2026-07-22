@@ -26,14 +26,14 @@ v1Router.use('/districts', districtRoutes);
 // import firRoutes from './fir.routes';
 // import suspectRoutes from './suspect.routes';
 // import analyticsRoutes from './analytics.routes';
-// import chatRoutes from './chat.routes';
+import aiRoutes from '../routes/ai.routes';
 // import graphRoutes from './graph.routes';
 // import reportRoutes from './report.routes';
 //
 // v1Router.use('/firs', firRoutes);
 // v1Router.use('/suspects', suspectRoutes);
 // v1Router.use('/analytics', analyticsRoutes);
-// v1Router.use('/chat', chatRoutes);
+v1Router.use('/ai', aiRoutes);
 // v1Router.use('/graph', graphRoutes);
 // v1Router.use('/reports', reportRoutes);
 

@@ -606,8 +606,11 @@ function answerQuery(query, payload, tables, history = []) {
     overview: () => overviewAnswer(context),
   };
 
+  const response = handlers[intent]();
+  response.answer += ' (Answer provided by local fallback model).';
+
   return {
-    ...handlers[intent](),
+    ...response,
     generatedAt: payload.generatedAt,
     source: payload.source,
   };
