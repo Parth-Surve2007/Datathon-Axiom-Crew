@@ -3,6 +3,7 @@
 import Sidebar from "@/components/Sidebar";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { usePathname } from "next/navigation";
+import kspLogo from "../../../public/ksp-logo.png";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -21,7 +22,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             inset: 0,
             zIndex: 0,
             pointerEvents: "none",
-            backgroundImage: `url('${process.env.NEXT_PUBLIC_BASE_PATH ?? ''}/ksp-logo.png')`,
+            backgroundImage: `url('${kspLogo.src}')`,
             backgroundRepeat: "no-repeat",
             backgroundPosition: "center center",
             backgroundSize: "42%",

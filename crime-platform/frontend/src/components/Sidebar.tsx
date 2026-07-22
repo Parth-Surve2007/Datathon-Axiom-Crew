@@ -22,6 +22,8 @@ import {
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useLiveIntelligence } from "@/hooks/useLiveIntelligence";
 
+import kspLogo from "../../public/ksp-logo.png";
+
 const navItems = [
   { name: "Overview", shortName: "Home", href: "/dashboard", icon: LayoutDashboard },
   { name: "Intelligence", shortName: "Intel", href: "/chat", icon: MessageSquareText },
@@ -42,7 +44,9 @@ function NavLink({
   compact?: boolean;
   navId?: string;
 }) {
-  const active = pathname === item.href;
+  const cleanPath = (pathname || "").replace(/^\/app/, "").replace(/\/$/, "") || "/";
+  const cleanHref = item.href.replace(/\/$/, "") || "/";
+  const active = cleanPath === cleanHref || (cleanHref !== "/" && cleanPath.startsWith(cleanHref + "/"));
   const Icon = item.icon;
 
   return (
@@ -143,7 +147,7 @@ export default function Sidebar() {
               whileTap={{ scale: 0.92 }}
               className="flex size-10 items-center justify-center rounded-2xl bg-[#d9482b] shadow-[0_10px_24px_rgba(217,72,43,.22)]"
             >
-              <Image src="/ksp-logo.png" alt="" width={32} height={28} className="h-7 w-8 object-contain" priority />
+              <Image src={kspLogo} alt="KSP Logo" width={32} height={28} className="h-7 w-8 object-contain" priority />
             </motion.span>
             <span className="hidden sm:block">
               <span className="block text-[15px] font-bold leading-none tracking-[-0.025em] text-[#182033]">Kangavalu</span>

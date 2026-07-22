@@ -18,6 +18,7 @@ const title = "Kangavalu | Crime Intelligence Command";
 const description = "A unified operational workspace for connected crime intelligence, investigations, and emerging patterns across Karnataka.";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
   title,
   description,
   applicationName: "Kangavalu",

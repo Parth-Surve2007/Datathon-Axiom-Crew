@@ -99,7 +99,7 @@ Run this from the repo root to open a second CMD window with the dev server:
 start cmd /k "cd /d crime-platform\frontend && npm run dev"
 ```
 
-> The app will be available at **http://localhost:3000**
+> The app will be available at **http://localhost:3000/app**
 
 ---
 
