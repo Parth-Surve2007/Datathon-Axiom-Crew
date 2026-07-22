@@ -607,6 +607,7 @@ function answerQuery(query, payload, tables, history = []) {
   };
 
   const response = handlers[intent]();
+  console.warn('Fallback activated because: Frontend is routing to the legacy api_service instead of the new backend. No Catalyst exception occurred.');
   response.answer += ' (Answer provided by local fallback model).';
 
   return {

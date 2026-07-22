@@ -26,7 +26,7 @@ v1Router.use('/districts', districtRoutes);
 // import firRoutes from './fir.routes';
 // import suspectRoutes from './suspect.routes';
 // import analyticsRoutes from './analytics.routes';
-import aiRoutes from '../routes/ai.routes';
+import aiRoutes from '../ai.routes';
 // import graphRoutes from './graph.routes';
 // import reportRoutes from './report.routes';
 //

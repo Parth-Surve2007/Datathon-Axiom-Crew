@@ -28,7 +28,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { catalystApiBase } from "@/lib/intelligence";
+import { aiBackendBase } from "@/lib/intelligence";
 import { useLiveIntelligence } from "@/hooks/useLiveIntelligence";
 
 type MessageSender = "bot" | "user";
@@ -123,23 +123,38 @@ export default function Chat() {
     setIsResponding(true);
 
     try {
-      const history = messages.slice(-8).map((message) => ({ sender: message.sender, text: message.text }));
-      const response = await fetch(`${catalystApiBase}/chat`, {
+      const response = await fetch(`${aiBackendBase}/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query, history }),
+        body: JSON.stringify({ message: query }),
       });
       const result = await response.json();
-      if (!response.ok) throw new Error(result.detail || result.error || "Catalyst query failed");
+      if (!response.ok) throw new Error(result.detail || result.error || "AI query failed");
+      
+      const botText = result.data?.text || result.answer || "No response received";
+
+      // Normalize the intelligence object — guarantee all arrays exist
+      const normalizedIntelligence = {
+        ...result,
+        intent: result?.data?.intent ?? result?.intent ?? "general",
+        confidence: result?.data?.confidence ?? result?.confidence ?? null,
+        metrics: result?.metrics ?? [],
+        references: result?.references ?? result?.data?.citations ?? [],
+        citations: result?.citations ?? result?.data?.citations ?? [],
+        entities: result?.entities ?? [],
+        reasoning: result?.reasoning ?? [],
+        followUps: result?.followUps ?? [],
+      };
+      
       setMessages((current) => [
         ...current,
         {
           id: messageId.current++,
           sender: "bot",
-          text: result.answer,
+          text: botText,
           timestamp: formatTimestamp(),
           hasCard: true,
-          intelligence: result,
+          intelligence: normalizedIntelligence,
         },
       ]);
     } catch (caught) {
@@ -412,14 +427,14 @@ export default function Chat() {
                               </span>
                               <div>
                                 <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-[#72808d]">Grounded intelligence</p>
-                                <h3 className="mt-0.5 text-sm font-semibold tracking-[-0.025em] capitalize text-[#182033]">{message.intelligence.intent.replace("-", " ")}</h3>
+                                <h3 className="mt-0.5 text-sm font-semibold tracking-[-0.025em] capitalize text-[#182033]">{(message.intelligence.intent || "general").replace("-", " ")}</h3>
                               </div>
                             </div>
-                            <span className="rounded-full bg-white/75 px-2.5 py-1 text-[8px] font-bold uppercase tracking-wider text-[#287a71]">{message.intelligence.confidence} confidence</span>
+                            <span className="rounded-full bg-white/75 px-2.5 py-1 text-[8px] font-bold uppercase tracking-wider text-[#287a71]">{message.intelligence.confidence || "100%"} confidence</span>
                           </div>
 
                           <div className="relative mt-4 grid overflow-hidden rounded-2xl border border-white/80 bg-white/55 sm:grid-cols-3">
-                            {message.intelligence.metrics.slice(0, 3).map((metric, metricIndex) => (
+                            {(message.intelligence.metrics || []).slice(0, 3).map((metric: any, metricIndex: number) => (
                             <div key={metric.label} className={`${metricIndex > 0 ? "border-t border-[#d5e0e7] sm:border-l sm:border-t-0" : ""} p-3.5 sm:p-4`}>
                               <p className="text-[8px] font-semibold uppercase tracking-[0.14em] text-[#7b8792]">{metric.label}</p>
                               <motion.p
@@ -447,10 +462,10 @@ export default function Chat() {
                             )}
                           </div>
 
-                          {message.intelligence.references.length > 0 && (
+                          {(message.intelligence?.references ?? []).length > 0 && (
                             <div className="relative mt-4 space-y-2">
                               <p className="text-[8px] font-bold uppercase tracking-[0.16em] text-[#72808d]">Evidence trail</p>
-                              {message.intelligence.references.slice(0, 4).map((reference) => (
+                              {(message.intelligence?.references ?? []).slice(0, 4).map((reference: any) => (
                                 <div key={`${reference.type}-${reference.id}`} className="rounded-2xl border border-white/85 bg-white/60 p-3">
                                   <div className="flex items-start justify-between gap-3">
                                     <div className="min-w-0">
@@ -469,18 +484,22 @@ export default function Chat() {
                           <div className="relative mt-4 rounded-2xl border border-white/85 bg-white/45 p-3.5">
                             <p className="text-[8px] font-bold uppercase tracking-[0.16em] text-[#72808d]">Reasoning path</p>
                             <ol className="mt-2 space-y-1.5">
-                              {message.intelligence.reasoning.slice(0, 3).map((step) => (
-                                <li key={step} className="flex gap-2 text-[9px] leading-relaxed text-[#64727e]">
-                                  <span className="mt-1 size-1.5 shrink-0 rounded-full bg-[#d9482b]" />
-                                  <span>{step}</span>
-                                </li>
-                              ))}
+                              {(message.intelligence?.reasoning ?? []).length === 0 ? (
+                                <li className="text-[9px] text-[#9aa5ad] italic">No reasoning steps available.</li>
+                              ) : (
+                                (message.intelligence?.reasoning ?? []).slice(0, 3).map((step: any) => (
+                                  <li key={step} className="flex gap-2 text-[9px] leading-relaxed text-[#64727e]">
+                                    <span className="mt-1 size-1.5 shrink-0 rounded-full bg-[#d9482b]" />
+                                    <span>{step}</span>
+                                  </li>
+                                ))
+                              )}
                             </ol>
                           </div>
 
-                          {message.intelligence.followUps.length > 0 && (
+                          {(message.intelligence?.followUps ?? []).length > 0 && (
                             <div className="relative mt-4 flex flex-wrap gap-2">
-                              {message.intelligence.followUps.slice(0, 3).map((followUp) => (
+                              {(message.intelligence?.followUps ?? []).slice(0, 3).map((followUp: any) => (
                                 <button
                                   key={followUp}
                                   type="button"

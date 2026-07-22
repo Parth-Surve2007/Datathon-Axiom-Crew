@@ -26,6 +26,16 @@ const envSchema = z.object({
   CATALYST_CLIENT_ID: z.string().optional(),
   CATALYST_CLIENT_SECRET: z.string().optional(),
   CATALYST_REDIRECT_URL: z.string().optional(),
+  CATALYST_ORG_ID: z.string().optional(),
+  CATALYST_QUICKML_ENDPOINT_URL: z.string().url().optional(),
+  CATALYST_QUICKML_DEPLOYMENT_URL: z.string().url().optional(),
+  CATALYST_QUICKML_ENDPOINT_KEY: z.string().optional(),
+  CATALYST_MODEL_ID: z.string().optional(),
+  CATALYST_TOP_K: z.coerce.number().optional(),
+  CATALYST_OAUTH_SETUP_SECRET: z.string().optional(),
+  CATALYST_REFRESH_TOKEN: z.string().optional(),
+  ZOHO_REFRESH_TOKEN: z.string().optional(),
+  ZOHO_ACCOUNTS_URL: z.string().url().default('https://accounts.zoho.in'),
   CATALYST_ENVIRONMENT: z.enum(['development', 'production']).default('development'),
 
   // Catalyst Database
@@ -93,6 +103,11 @@ export const catalystConfig = {
   clientId: env.CATALYST_CLIENT_ID,
   clientSecret: env.CATALYST_CLIENT_SECRET,
   redirectUrl: env.CATALYST_REDIRECT_URL,
+  orgId: env.CATALYST_ORG_ID,
+  quickMlEndpointUrl: env.CATALYST_QUICKML_ENDPOINT_URL || env.CATALYST_QUICKML_DEPLOYMENT_URL,
+  quickMlEndpointKey: env.CATALYST_QUICKML_ENDPOINT_KEY,
+  refreshToken: env.ZOHO_REFRESH_TOKEN || env.CATALYST_REFRESH_TOKEN,
+  accountsUrl: env.ZOHO_ACCOUNTS_URL,
   environment: env.CATALYST_ENVIRONMENT,
 } as const;
 

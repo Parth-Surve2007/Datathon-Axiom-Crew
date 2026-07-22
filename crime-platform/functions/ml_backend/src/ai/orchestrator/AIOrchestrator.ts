@@ -143,7 +143,11 @@ export class AIOrchestrator {
         usage: response.usage || { promptTokens: 0, completionTokens: 0, totalTokens: 0 }
       };
     } catch (error: any) {
-      AILogger.logError(sessionId, error, { userMessageText });
+      try {
+        AILogger.logError(sessionId, error, { userMessageText });
+      } catch (logErr) {
+        console.error('Failed to log error', logErr);
+      }
       throw error;
     }
   }

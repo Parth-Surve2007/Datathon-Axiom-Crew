@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { catalystApiBase, type IntelligencePayload } from "@/lib/intelligence";
+import { catalystBackendBase, type IntelligencePayload } from "@/lib/intelligence";
 
 export function useLiveIntelligence(refreshMs = 30_000) {
   const [data, setData] = useState<IntelligencePayload | null>(null);
@@ -10,7 +10,7 @@ export function useLiveIntelligence(refreshMs = 30_000) {
 
   const refresh = useCallback(async (signal?: AbortSignal) => {
     try {
-      const response = await fetch(`${catalystApiBase}/intelligence`, { cache: "no-store", signal });
+      const response = await fetch(`${catalystBackendBase}/intelligence`, { cache: "no-store", signal });
       if (!response.ok) {
         const body = await response.json().catch(() => ({}));
         throw new Error(body.detail || body.error || `Catalyst returned ${response.status}`);

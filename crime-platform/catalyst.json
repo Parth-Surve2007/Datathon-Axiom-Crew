@@ -4,7 +4,8 @@
   },
   "functions": {
     "targets": [
-      "api_service"
+      "api_service",
+      "ml_backend"
     ],
     "source": "functions"
   }

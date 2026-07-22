@@ -12,7 +12,7 @@ npm.cmd run serve:local
 If your Catalyst account has access to the linked project, you can also run the Catalyst function locally:
 
 ```powershell
-catalyst.cmd serve --only functions:api_service --http 3001 --no-open
+catalyst.cmd serve --http 3001 --no-open
 ```
 
 ```powershell

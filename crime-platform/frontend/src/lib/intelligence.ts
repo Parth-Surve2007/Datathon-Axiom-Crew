@@ -57,13 +57,24 @@ export type IntelligencePayload = {
   };
 };
 
-export const catalystApiBase = (() => {
+export const aiBackendBase = (() => {
   if (typeof window !== "undefined") {
     const isLocalhost = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
     if (isLocalhost) {
-      return "http://localhost:3001/server/api_service";
+      return process.env.NEXT_PUBLIC_AI_BACKEND_URL?.replace(/\/$/, "") || "http://localhost:3001/server/ml_backend/api/v1/ai";
     }
-    return "/server/api_service";
+    return "/api/v1/ai";
+  }
+  return process.env.NEXT_PUBLIC_AI_BACKEND_URL?.replace(/\/$/, "") || "http://localhost:3001/server/ml_backend/api/v1/ai";
+})();
+
+export const catalystBackendBase = (() => {
+  if (typeof window !== "undefined") {
+    const isLocalhost = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+    if (isLocalhost) {
+      return process.env.NEXT_PUBLIC_CATALYST_API_URL?.replace(/\/$/, "") || "http://localhost:3001/server/api_service";
+    }
+    return process.env.NEXT_PUBLIC_CATALYST_API_URL?.replace(/\/$/, "") || "/server/api_service";
   }
   return process.env.NEXT_PUBLIC_CATALYST_API_URL?.replace(/\/$/, "") || "http://localhost:3001/server/api_service";
 })();
