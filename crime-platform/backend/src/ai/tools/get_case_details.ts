@@ -1,4 +1,5 @@
-import { ITool, ToolExecutionResult } from './ITool';
+import { ITool, ToolResult } from './ITool';
+import { firService } from '../../services/fir.service';
 
 export class GetCaseDetailsTool implements ITool {
   readonly name = 'get_case_details';
@@ -12,23 +13,33 @@ export class GetCaseDetailsTool implements ITool {
     required: ['case_id']
   };
 
-  async execute(args: Record<string, any>): Promise<ToolExecutionResult> {
+  async execute(args: Record<string, any>): Promise<ToolResult> {
+    const startTime = Date.now();
     try {
-      // Mock implementation
+      const details = await firService.getCaseDetails(args.case_id);
+      
       return {
         success: true,
-        data: {
-          case_id: args.case_id,
-          status: 'Under Investigation',
-          officer_in_charge: 'Inspector Raman',
-          details: 'Detailed information regarding the case goes here.'
+        tool: this.name,
+        data: details,
+        citations: [],
+        metadata: {
+          executionTimeMs: Date.now() - startTime,
+          source: 'firService',
+          repository: 'FirRepository, EvidenceRepository, etc.'
         }
       };
     } catch (error: any) {
       return {
         success: false,
-        data: null,
-        error: error.message
+        tool: this.name,
+        data: { error: error.message },
+        citations: [],
+        metadata: {
+          executionTimeMs: Date.now() - startTime,
+          source: 'firService',
+          repository: 'FirRepository'
+        }
       };
     }
   }

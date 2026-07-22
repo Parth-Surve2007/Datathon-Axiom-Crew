@@ -1,4 +1,5 @@
-import { ITool, ToolExecutionResult } from './ITool';
+import { ITool, ToolResult } from './ITool';
+import { personService } from '../../services/person.service';
 
 export class FindAssociatesTool implements ITool {
   readonly name = 'find_associates';
@@ -13,23 +14,33 @@ export class FindAssociatesTool implements ITool {
     required: ['suspect_name']
   };
 
-  async execute(args: Record<string, any>): Promise<ToolExecutionResult> {
+  async execute(args: Record<string, any>): Promise<ToolResult> {
+    const startTime = Date.now();
     try {
+      const data = await personService.findAssociates(args.suspect_id || args.suspect_name);
+
       return {
         success: true,
-        data: {
-          suspect: args.suspect_name,
-          associates: [
-            { name: 'Unknown Associate 1', relationship: 'Co-accused' },
-            { name: 'Unknown Associate 2', relationship: 'Known accomplice' }
-          ]
+        tool: this.name,
+        data,
+        citations: [],
+        metadata: {
+          executionTimeMs: Date.now() - startTime,
+          source: 'personService',
+          repository: 'PersonRepository'
         }
       };
     } catch (error: any) {
       return {
         success: false,
-        data: null,
-        error: error.message
+        tool: this.name,
+        data: { error: error.message },
+        citations: [],
+        metadata: {
+          executionTimeMs: Date.now() - startTime,
+          source: 'personService',
+          repository: 'PersonRepository'
+        }
       };
     }
   }

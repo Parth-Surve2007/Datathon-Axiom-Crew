@@ -3,7 +3,7 @@ import { BaseProvider } from '../providers/BaseProvider';
 import { IRetriever } from '../retrieval/IRetriever';
 import { ToolRegistry } from '../tools/ToolRegistry';
 import { ConversationMemory } from '../memory/ConversationMemory';
-import { ITool, ToolExecutionResult } from '../tools/ITool';
+import { ITool, ToolResult } from '../tools/ITool';
 
 class MockProvider extends BaseProvider {
   generateCallCount = 0;
@@ -48,8 +48,18 @@ class MockTool implements ITool {
   name = 'mock_tool';
   description = 'Mock tool';
   parametersSchema = {};
-  async execute(args: any): Promise<ToolExecutionResult> {
-    return { success: true, data: { result: 'mocked' } };
+  async execute(args: any): Promise<ToolResult> {
+    return { 
+      success: true, 
+      tool: this.name,
+      data: { result: 'mocked' },
+      citations: [],
+      metadata: {
+        executionTimeMs: 10,
+        source: 'mock',
+        repository: 'mock'
+      }
+    };
   }
 }
 

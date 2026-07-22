@@ -1,4 +1,5 @@
-import { ITool, ToolExecutionResult } from './ITool';
+import { ITool, ToolResult } from './ITool';
+import { firService } from '../../services/fir.service';
 
 export class SearchFirsTool implements ITool {
   readonly name = 'search_firs';
@@ -15,22 +16,40 @@ export class SearchFirsTool implements ITool {
     required: ['query']
   };
 
-  async execute(args: Record<string, any>): Promise<ToolExecutionResult> {
+  async execute(args: Record<string, any>): Promise<ToolResult> {
+    const startTime = Date.now();
     try {
-      // Mock implementation for architecture integration
+      const results = await firService.searchFirs({
+        query: args.query,
+        location: args.location,
+        dateFrom: args.date_from,
+        dateTo: args.date_to,
+        page: args.page,
+        limit: args.limit
+      });
+
       return {
         success: true,
-        data: {
-          results: [
-            { fir_number: 'FIR-2023-001', location: args.location || 'Unknown', summary: `Matches query: ${args.query}` }
-          ]
+        tool: this.name,
+        data: results,
+        citations: [], // Populated by CitationEngine later if applicable
+        metadata: {
+          executionTimeMs: Date.now() - startTime,
+          source: 'firService',
+          repository: 'FirRepository'
         }
       };
     } catch (error: any) {
       return {
         success: false,
-        data: null,
-        error: error.message
+        tool: this.name,
+        data: { error: error.message },
+        citations: [],
+        metadata: {
+          executionTimeMs: Date.now() - startTime,
+          source: 'firService',
+          repository: 'FirRepository'
+        }
       };
     }
   }

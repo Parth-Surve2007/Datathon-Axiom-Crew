@@ -1,7 +1,16 @@
-export interface ToolExecutionResult {
+import { Citation } from '../types';
+
+export interface ToolResult {
   success: boolean;
-  data: any;
-  error?: string;
+  tool: string;
+  data: unknown;
+  citations: Citation[];
+  confidence?: number;
+  metadata: {
+    executionTimeMs: number;
+    source: string;
+    repository: string;
+  };
 }
 
 export interface ITool {
@@ -12,5 +21,5 @@ export interface ITool {
   /**
    * Executes the tool with the provided arguments.
    */
-  execute(args: Record<string, any>): Promise<ToolExecutionResult>;
+  execute(args: Record<string, any>): Promise<ToolResult>;
 }
