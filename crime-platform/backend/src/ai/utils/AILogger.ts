@@ -11,6 +11,17 @@ export class AILogger {
     }, 'AI Query Executed');
   }
 
+  static logToolExecution(toolName: string, latencyMs: number, args: any, success: boolean, sessionId?: string) {
+    logger.info({
+      type: 'ai_tool_execution',
+      toolName,
+      latencyMs,
+      args,
+      success,
+      sessionId
+    }, 'AI Tool Executed');
+  }
+
   static logProviderMetrics(providerName: string, latencyMs: number, usage: any) {
     logger.info({
       type: 'ai_provider_metrics',

@@ -2,11 +2,25 @@ import { z } from 'zod';
 
 export type Role = 'system' | 'user' | 'assistant' | 'tool';
 
+export interface ToolCallFunction {
+  name: string;
+  arguments: string; // JSON string
+}
+
+export interface ToolCall {
+  id: string;
+  type: 'function';
+  function: ToolCallFunction;
+}
+
 export interface ChatMessage {
   id: string;
   role: Role;
   content: string;
   timestamp: Date;
+  tool_calls?: ToolCall[];
+  tool_call_id?: string;
+  name?: string; // name of the tool if role is 'tool'
   metadata?: Record<string, any>;
 }
 
@@ -49,12 +63,15 @@ export interface GenerateRequest {
   messages: ChatMessage[];
   config?: Partial<ProviderConfig>;
   stream?: boolean;
+  tools?: any[]; // OpenAI-style tool schema
+  tool_choice?: 'auto' | 'none' | any;
 }
 
 export interface GenerateResponse {
   text: string;
   usage?: TokenUsage;
   citations?: Citation[];
+  tool_calls?: ToolCall[];
   metadata?: Record<string, any>;
 }
 

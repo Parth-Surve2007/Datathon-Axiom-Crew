@@ -58,8 +58,66 @@ export class AIOrchestrator {
       const history = await this.memory.getHistory(sessionId, 10);
       const messages = [systemPrompt, ...history, userMessage];
 
-      // 4. LLM Generation
-      const response = await this.provider.generate({ messages });
+      // 4. LLM Generation and Tool Calling Loop
+      const tools = this.toolRegistry.getAllTools().map(t => ({
+        type: 'function',
+        function: { name: t.name, description: t.description, parameters: t.parametersSchema }
+      }));
+
+      let response = await this.provider.generate({ messages, tools });
+      
+      let loopCount = 0;
+      const MAX_LOOPS = 5;
+
+      while (response.tool_calls && response.tool_calls.length > 0 && loopCount < MAX_LOOPS) {
+        loopCount++;
+        
+        // Add assistant's tool call message to history
+        const toolCallMessage: ChatMessage = {
+          id: crypto.randomUUID(),
+          role: 'assistant',
+          content: response.text || '',
+          timestamp: new Date(),
+          tool_calls: response.tool_calls
+        };
+        messages.push(toolCallMessage);
+
+        for (const toolCall of response.tool_calls) {
+          const tool = this.toolRegistry.getTool(toolCall.function.name);
+          let toolResultContent = '';
+          let success = false;
+          let args = {};
+          
+          if (tool) {
+            const startTimeTool = Date.now();
+            try {
+              args = JSON.parse(toolCall.function.arguments || '{}');
+              const result = await tool.execute(args);
+              success = result.success;
+              toolResultContent = JSON.stringify(result);
+              AILogger.logToolExecution(tool.name, Date.now() - startTimeTool, args, success, sessionId);
+            } catch (err: any) {
+              toolResultContent = JSON.stringify({ success: false, error: err.message });
+              AILogger.logError(sessionId, err, { toolName: tool.name, args });
+            }
+          } else {
+            toolResultContent = JSON.stringify({ success: false, error: `Tool ${toolCall.function.name} not found.` });
+          }
+
+          // Add tool result to messages
+          messages.push({
+            id: crypto.randomUUID(),
+            role: 'tool',
+            content: toolResultContent,
+            timestamp: new Date(),
+            tool_call_id: toolCall.id,
+            name: toolCall.function.name
+          });
+        }
+
+        // Call LLM again with tool results
+        response = await this.provider.generate({ messages, tools });
+      }
 
       // 5. Citation Generation
       const citations = CitationEngine.generateCitations(response.text, evidence);
@@ -114,7 +172,12 @@ export class AIOrchestrator {
     const history = await this.memory.getHistory(sessionId, 10);
     const messages = [systemPrompt, ...history, userMessage];
 
-    const stream = this.provider.generateStream({ messages, stream: true });
+    const tools = this.toolRegistry.getAllTools().map(t => ({
+      type: 'function',
+      function: { name: t.name, description: t.description, parameters: t.parametersSchema }
+    }));
+
+    const stream = this.provider.generateStream({ messages, stream: true, tools });
     let fullResponseText = "";
 
     for await (const chunk of stream) {
