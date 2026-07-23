@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import L, { type Layer } from "leaflet";
-import { GeoJSON, MapContainer, TileLayer, useMap } from "react-leaflet";
+import { GeoJSON, MapContainer, useMap } from "react-leaflet";
 import type { Feature, FeatureCollection, GeoJsonObject } from "geojson";
 import type { CrimeIncident, DistrictCrimeData } from "@/lib/map-data";
 import { MapLegend } from "./MapLegend";
@@ -72,6 +72,40 @@ function HeatLayer({ active }: { active: boolean }) {
   return null;
 }
 
+function BaseTileLayer() {
+  const map = useMap();
+
+  useEffect(() => {
+    let frame = 0;
+    let layer: L.TileLayer | null = null;
+    let cancelled = false;
+
+    const mountLayer = () => {
+      if (cancelled) return;
+
+      if (!map.getPane("tilePane")) {
+        frame = window.requestAnimationFrame(mountLayer);
+        return;
+      }
+
+      layer = L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+      });
+      layer.addTo(map);
+    };
+
+    mountLayer();
+
+    return () => {
+      cancelled = true;
+      if (frame) window.cancelAnimationFrame(frame);
+      layer?.remove();
+    };
+  }, [map]);
+
+  return null;
+}
+
 function FlyToDistrict({ district }: { district: DistrictCrimeData | null }) {
   const map = useMap();
 
@@ -131,7 +165,7 @@ export function MapView({
   return (
     <div className={`relative h-[calc(100dvh-12rem)] min-h-[580px] overflow-hidden rounded-lg border border-white/10 bg-[#0a0a0f] shadow-2xl ${className ?? ""}`}>
       <MapContainer center={[15.25, 75.75]} zoom={7} minZoom={6} scrollWheelZoom className="h-full w-full bg-[#0a0a0f]" aria-label="Karnataka district crime map">
-        <TileLayer attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>' url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" />
+        <BaseTileLayer />
         <FlyToDistrict district={selectedDistrict ?? null} />
         {geoJson && !heatmap && <GeoJSON
           key={`${forecast}-${hovered}-${selectedDistrict?.district_name ?? ""}`}

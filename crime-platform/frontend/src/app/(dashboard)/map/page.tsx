@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useEffect, useMemo, useState } from "react";
-import { Activity, ChevronRight, Crosshair, Flame, MapPin, Radio, RotateCcw, Route, ShieldCheck, Timer, TrendingUp } from "lucide-react";
+import { Activity, ChevronRight, Crosshair, Flame, MapPin, Radio, RotateCcw, ShieldCheck, Timer, TrendingUp } from "lucide-react";
 import { catalystBackendBase } from "@/lib/intelligence";
 import { fallbackCrimeIncidents, fallbackDistrictCrimeData, type CrimeIncident, type DistrictCrimeData, type IncidentType } from "@/lib/map-data";
 import { IncidentFilterBar } from "@/components/map/IncidentFilterBar";
@@ -64,6 +64,19 @@ export default function CrimeMapPage() {
   const baselineDelta = selectedDistrict && districtAverage
     ? Math.round(((selectedDistrict.crime_count - districtAverage) / districtAverage) * 100)
     : 0;
+  const filteredSelectedIncidents = filteredIncidents.filter((incident) => incident.district === selectedDistrict?.district_name);
+  const windowMultiplier = timeWindow === "24h" ? 0.16 : timeWindow === "30d" ? 3.25 : 1;
+  const areaWindowReports = selectedDistrict ? Math.max(filteredSelectedIncidents.length, Math.round(selectedDistrict.crime_count * windowMultiplier)) : 0;
+  const openAreaCases = filteredSelectedIncidents.filter((incident) => incident.status === "Open" || incident.status === "Under Investigation").length;
+  const priorityAreaIncidents = filteredSelectedIncidents.filter((incident) => incident.severity === "High").length;
+  const responseMinutes = selectedDistrict
+    ? Math.min(22, Math.max(6, Math.round(6 + (selectedDistrict.crime_count / Math.max(districtAverage, 1)) * 2 + openAreaCases * 0.9 + priorityAreaIncidents * 1.4)))
+    : 0;
+  const selectedLeadingTypeCount = selectedDistrict
+    ? selectedDistrict.crime_breakdown[selectedDistrict.top_crime_type.toLowerCase() as keyof typeof selectedDistrict.crime_breakdown] ?? 0
+    : 0;
+  const statewideOpenCases = incidents.filter((incident) => incident.status === "Open" || incident.status === "Under Investigation").length;
+  const statewidePriorityIncidents = incidents.filter((incident) => incident.severity === "High").length;
   const resetView = () => {
     setTimeWindow("7d");
     setHeatmap(false);
@@ -94,10 +107,10 @@ export default function CrimeMapPage() {
 
       <section className="mb-5 grid grid-cols-2 gap-3 xl:grid-cols-4">
         {[
-          { label: "Signals mapped", value: totalCrime.toLocaleString(), icon: Radio, tone: "text-[#d9482b] bg-[#fff0ec]" },
-          { label: "Active hotspots", value: districts.filter((district) => district.crime_count >= districtAverage).length, icon: ShieldCheck, tone: "text-[#172033] bg-[#f1f3f5]" },
-          { label: "Units in range", value: 24, icon: Route, tone: "text-[#2d8178] bg-[#eaf5f3]" },
-          { label: "Median response", value: "08m", icon: Timer, tone: "text-[#70a5ca] bg-[#edf5fa]" },
+          { label: `${timeWindow} area reports`, value: areaWindowReports.toLocaleString(), icon: Crosshair, tone: "text-[#d9482b] bg-[#fff0ec]" },
+          { label: "Open live cases", value: openAreaCases, icon: Radio, tone: "text-[#172033] bg-[#f1f3f5]" },
+          { label: "Priority incidents", value: priorityAreaIncidents, icon: ShieldCheck, tone: "text-[#2d8178] bg-[#eaf5f3]" },
+          { label: "Response ETA", value: responseMinutes ? `${responseMinutes}m` : "--", icon: Timer, tone: "text-[#70a5ca] bg-[#edf5fa]" },
         ].map(({ label, value, icon: Icon, tone }) => (
           <article key={label} className="flex min-h-[96px] items-start justify-between rounded-[20px] border border-white/90 bg-white/90 p-4 shadow-[0_16px_36px_rgba(33,48,67,0.08)] backdrop-blur">
             <div><p className="text-[9px] font-bold uppercase tracking-[0.16em] text-[#7b8796]">{label}</p><p className="mt-2 text-2xl font-semibold tracking-tight">{value}</p></div>
@@ -155,10 +168,14 @@ export default function CrimeMapPage() {
                   <div><h2 className="text-lg font-semibold">{selectedDistrict.district_name}</h2><p className="text-[10px] text-[#7b8796]">Karnataka district command</p></div>
                 </div>
                 <div className="mt-5 grid grid-cols-2 gap-2">
-                  <div className="rounded-2xl bg-[#f3f5f7] p-3"><p className="text-[8px] font-bold uppercase tracking-[0.13em] text-[#7b8796]">Reports</p><p className="mt-1 text-xl font-semibold">{selectedDistrict.crime_count}</p></div>
+                  <div className="rounded-2xl bg-[#f3f5f7] p-3"><p className="text-[8px] font-bold uppercase tracking-[0.13em] text-[#7b8796]">Registry reports</p><p className="mt-1 text-xl font-semibold">{selectedDistrict.crime_count}</p></div>
                   <div className="rounded-2xl bg-[#f3f5f7] p-3"><p className="text-[8px] font-bold uppercase tracking-[0.13em] text-[#7b8796]">Vs baseline</p><p className={`mt-1 text-lg font-semibold ${baselineDelta >= 0 ? "text-[#d9482b]" : "text-[#2d8178]"}`}>{baselineDelta >= 0 ? "+" : ""}{baselineDelta}%</p></div>
                 </div>
-                <p className="mt-4 text-xs leading-5 text-[#677487]">{selectedDistrict.top_crime_type} is the leading category, with {selectedDistrict.crime_breakdown[selectedDistrict.top_crime_type.toLowerCase() as keyof typeof selectedDistrict.crime_breakdown] ?? 0} linked reports in the current intelligence window.</p>
+                <div className="mt-2 grid grid-cols-2 gap-2">
+                  <div className="rounded-2xl bg-[#f3f5f7] p-3"><p className="text-[8px] font-bold uppercase tracking-[0.13em] text-[#7b8796]">State registry</p><p className="mt-1 text-xl font-semibold">{totalCrime.toLocaleString()}</p></div>
+                  <div className="rounded-2xl bg-[#f3f5f7] p-3"><p className="text-[8px] font-bold uppercase tracking-[0.13em] text-[#7b8796]">Monitored units</p><p className="mt-1 text-xl font-semibold">24</p></div>
+                </div>
+                <p className="mt-4 text-xs leading-5 text-[#677487]">{selectedDistrict.top_crime_type} is the leading category, with {selectedLeadingTypeCount} registry-linked reports. Current filters show {filteredSelectedIncidents.length} mapped FIRs in this district.</p>
                 <button type="button" onClick={() => setShowIncidents(true)} className="mt-5 flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#172033] px-4 text-xs font-semibold text-white transition hover:-translate-y-0.5 hover:bg-[#263248] hover:shadow-lg">Open incident cluster <ChevronRight size={15} /></button>
               </>
             ) : <p className="mt-5 text-sm text-[#7b8796]">Select a district on the map to inspect it.</p>}
@@ -183,6 +200,10 @@ export default function CrimeMapPage() {
                 );
               })}
             </ol>
+            <div className="mt-4 grid grid-cols-2 gap-2 border-t border-[#e3e8ee] pt-4">
+              <div className="rounded-2xl bg-[#f3f5f7] p-3"><p className="text-[8px] font-bold uppercase tracking-[0.13em] text-[#7b8796]">Open statewide</p><p className="mt-1 text-lg font-semibold">{statewideOpenCases}</p></div>
+              <div className="rounded-2xl bg-[#f3f5f7] p-3"><p className="text-[8px] font-bold uppercase tracking-[0.13em] text-[#7b8796]">Priority FIRs</p><p className="mt-1 text-lg font-semibold">{statewidePriorityIncidents}</p></div>
+            </div>
           </section>
         </aside>
       </main>
