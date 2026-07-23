@@ -38,8 +38,8 @@ interface CatalystInternalResponse {
 }
 
 export class CatalystQuickMLProvider extends BaseProvider {
-  private readonly DEFAULT_TIMEOUT_MS = 30000;
-  private readonly MAX_RETRIES = 3;
+  private readonly DEFAULT_TIMEOUT_MS = 300000;
+  private readonly MAX_RETRIES = 1;
   private readonly DEFAULT_MODEL = process.env.CATALYST_MODEL_ID || 'quickml-default-model';
   private readonly tokenManager = new ZohoOAuthTokenManager();
 
