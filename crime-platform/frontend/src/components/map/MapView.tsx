@@ -6,7 +6,6 @@ import { GeoJSON, MapContainer, TileLayer, useMap } from "react-leaflet";
 import type { Feature, FeatureCollection, GeoJsonObject } from "geojson";
 import type { CrimeIncident, DistrictCrimeData } from "@/lib/map-data";
 import { MapLegend } from "./MapLegend";
-import { DistrictPanel } from "./DistrictPanel";
 import { IncidentPin } from "./IncidentPin";
 import { IncidentReportPanel } from "./IncidentReportPanel";
 
@@ -73,6 +72,20 @@ function HeatLayer({ active }: { active: boolean }) {
   return null;
 }
 
+function FlyToDistrict({ district }: { district: DistrictCrimeData | null }) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (district) {
+      map.flyTo([district.lat, district.lng], Math.max(map.getZoom(), 8), {
+        duration: 0.75,
+      });
+    }
+  }, [district, map]);
+
+  return null;
+}
+
 export function MapView({
   districts,
   heatmap,
@@ -80,6 +93,9 @@ export function MapView({
   showIncidents,
   incidents,
   reportIncidents,
+  selectedDistrict,
+  onDistrictSelect,
+  className,
 }: {
   districts: DistrictCrimeData[];
   heatmap: boolean;
@@ -87,10 +103,12 @@ export function MapView({
   showIncidents: boolean;
   incidents: CrimeIncident[];
   reportIncidents: CrimeIncident[];
+  selectedDistrict?: DistrictCrimeData | null;
+  onDistrictSelect?: (district: DistrictCrimeData) => void;
+  className?: string;
 }) {
   const [geoJson, setGeoJson] = useState<GeoJsonObject | null>(null);
   const [boundaryError, setBoundaryError] = useState(false);
-  const [selected, setSelected] = useState<DistrictCrimeData | null>(null);
   const [selectedIncident, setSelectedIncident] = useState<CrimeIncident | null>(null);
   const [hovered, setHovered] = useState("");
   const lookup = useMemo(() => new Map(districts.map((district) => [district.district_name, district])), [districts]);
@@ -111,24 +129,26 @@ export function MapView({
   }, []);
 
   return (
-    <div className="relative h-[calc(100dvh-12rem)] min-h-[580px] overflow-hidden rounded-lg border border-white/10 bg-[#0a0a0f] shadow-2xl">
+    <div className={`relative h-[calc(100dvh-12rem)] min-h-[580px] overflow-hidden rounded-lg border border-white/10 bg-[#0a0a0f] shadow-2xl ${className ?? ""}`}>
       <MapContainer center={[15.25, 75.75]} zoom={7} minZoom={6} scrollWheelZoom className="h-full w-full bg-[#0a0a0f]" aria-label="Karnataka district crime map">
         <TileLayer attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>' url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" />
+        <FlyToDistrict district={selectedDistrict ?? null} />
         {geoJson && !heatmap && <GeoJSON
-          key={`${forecast}-${hovered}`}
+          key={`${forecast}-${hovered}-${selectedDistrict?.district_name ?? ""}`}
           data={geoJson}
           style={(feature) => {
             const name = districtName(feature);
             const district = lookup.get(name);
             const isForecast = forecast && forecastHotspots.has(name);
-            return { color: isForecast ? "#ff3b30" : "#fff", weight: isForecast ? 3 : hovered === name ? 2.5 : 1, dashArray: isForecast ? "7 5" : undefined, fillColor: district ? crimeColor(district.crime_count) : "#32343d", fillOpacity: district ? 0.72 : 0.22, className: isForecast ? "forecast-district" : undefined };
+            const isSelected = selectedDistrict?.district_name === name;
+            return { color: isForecast ? "#ff3b30" : isSelected ? "#7dd3fc" : "#fff", weight: isForecast || isSelected ? 3 : hovered === name ? 2.5 : 1, dashArray: isForecast ? "7 5" : undefined, fillColor: district ? crimeColor(district.crime_count) : "#32343d", fillOpacity: district ? (isSelected ? 0.92 : 0.72) : 0.22, className: isForecast ? "forecast-district" : undefined };
           }}
           onEachFeature={(feature, layer) => {
             const name = districtName(feature);
             const district = lookup.get(name);
             if (!district) return;
             layer.bindTooltip(`<strong>${district.district_name}</strong><br/>${district.crime_count} crime reports<br/><span>${district.top_crime_type} leads</span>`, { sticky: true, className: "district-tooltip", direction: "top" });
-            layer.on({ mouseover: () => setHovered(name), mouseout: () => setHovered(""), click: () => { setSelectedIncident(null); setSelected(district); } });
+            layer.on({ mouseover: () => setHovered(name), mouseout: () => setHovered(""), click: () => { setSelectedIncident(null); onDistrictSelect?.(district); } });
           }}
         />}
         <HeatLayer active={heatmap} />
@@ -137,7 +157,6 @@ export function MapView({
             key={incident.id}
             incident={incident}
             onSelect={(nextIncident) => {
-              setSelected(null);
               setSelectedIncident(nextIncident);
             }}
           />
@@ -147,7 +166,6 @@ export function MapView({
       <div className="pointer-events-none absolute bottom-5 left-5 z-[900]"><MapLegend /></div>
       <div className="pointer-events-none absolute left-5 top-5 z-[900] rounded-md border border-white/10 bg-[#101119]/95 px-3 py-2 text-xs text-white shadow-xl backdrop-blur"><span className="font-semibold text-[#fed976]">{heatmap ? "Heatmap" : "District choropleth"}</span><span className="ml-2 text-white/50">{districts.length} monitored districts</span></div>
       {forecast && <div className="pointer-events-none absolute bottom-5 right-5 z-[900] rounded-md border border-red-400/30 bg-[#301114]/90 px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-red-200">Forecast hotspots active</div>}
-      {selected && <DistrictPanel district={selected} onClose={() => setSelected(null)} />}
       {selectedIncident && <IncidentReportPanel incident={selectedIncident} incidents={reportIncidents} onClose={() => setSelectedIncident(null)} />}
     </div>
   );

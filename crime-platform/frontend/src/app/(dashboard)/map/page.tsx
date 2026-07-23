@@ -2,12 +2,14 @@
 
 import dynamic from "next/dynamic";
 import { useEffect, useMemo, useState } from "react";
-import { Activity, Crosshair, Flame, MapPin, Radar } from "lucide-react";
+import { Activity, ChevronRight, Crosshair, Flame, MapPin, Radio, RotateCcw, Route, ShieldCheck, Timer, TrendingUp } from "lucide-react";
 import { catalystBackendBase } from "@/lib/intelligence";
 import { fallbackCrimeIncidents, fallbackDistrictCrimeData, type CrimeIncident, type DistrictCrimeData, type IncidentType } from "@/lib/map-data";
 import { IncidentFilterBar } from "@/components/map/IncidentFilterBar";
 
-const MapView = dynamic(() => import("@/components/map/MapView").then((module) => module.MapView), { ssr: false, loading: () => <div className="h-[calc(100dvh-12rem)] min-h-[580px] animate-pulse rounded-lg bg-[#101119]" /> });
+const MapView = dynamic(() => import("@/components/map/MapView").then((module) => module.MapView), { ssr: false, loading: () => <div className="h-[470px] animate-pulse rounded-[20px] bg-[#101119]" /> });
+
+const timeWindows = ["24h", "7d", "30d"] as const;
 
 export default function CrimeMapPage() {
   const [districts, setDistricts] = useState<DistrictCrimeData[]>(fallbackDistrictCrimeData);
@@ -17,6 +19,8 @@ export default function CrimeMapPage() {
   const [showIncidents, setShowIncidents] = useState(false);
   const [activeTypes, setActiveTypes] = useState<IncidentType[]>([]);
   const [openOnly, setOpenOnly] = useState(false);
+  const [timeWindow, setTimeWindow] = useState<(typeof timeWindows)[number]>("7d");
+  const [selectedDistrict, setSelectedDistrict] = useState<DistrictCrimeData | null>(fallbackDistrictCrimeData[0]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -50,26 +54,58 @@ export default function CrimeMapPage() {
     setActiveTypes((current) => current.includes(type) ? current.filter((item) => item !== type) : [...current, type]);
   };
 
+  useEffect(() => {
+    if (!selectedDistrict && districts.length) setSelectedDistrict(districts[0]);
+  }, [districts, selectedDistrict]);
+
   const totalCrime = districts.reduce((total, district) => total + district.crime_count, 0);
+  const rankedDistricts = [...districts].sort((first, second) => second.crime_count - first.crime_count).slice(0, 4);
+  const districtAverage = districts.length ? totalCrime / districts.length : 0;
+  const baselineDelta = selectedDistrict && districtAverage
+    ? Math.round(((selectedDistrict.crime_count - districtAverage) / districtAverage) * 100)
+    : 0;
+  const resetView = () => {
+    setTimeWindow("7d");
+    setHeatmap(false);
+    setForecast(false);
+    setShowIncidents(false);
+    setActiveTypes([]);
+    setOpenOnly(false);
+    setSelectedDistrict(districts[0] ?? null);
+  };
+
   return (
-    <div className="-mx-4 min-h-[calc(100dvh-5rem)] bg-[#0a0a0f] px-4 py-5 text-white sm:-mx-6 sm:px-6 xl:-mx-8 xl:px-8">
-      <header className="mx-auto mb-5 flex max-w-[1580px] flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+    <div className="mx-auto w-full max-w-[1440px] text-[#172033]">
+      <header className="mb-5 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <p className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.18em] text-[#fd8d3c]"><Radar size={14} /> Karnataka crime intelligence</p>
-          <h1 className="mt-2 text-3xl font-semibold sm:text-4xl">Geospatial command map</h1>
-          <p className="mt-2 text-sm text-white/55">District-level crime density, predictive risk signals, and incident concentration.</p>
+          <p className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.18em] text-[#2d8178]"><Radio size={14} /> Live command intelligence</p>
+          <h1 className="mt-1 text-3xl font-semibold tracking-[-0.035em] sm:text-4xl">Geospatial intelligence</h1>
+          <p className="mt-1.5 text-sm text-[#738091]">Monitor incident density, patrol coverage, and emerging risk across Karnataka.</p>
         </div>
-        <div className="flex flex-wrap gap-2">
-          <button type="button" onClick={() => setHeatmap((value) => !value)} aria-pressed={heatmap} className={`flex min-h-10 items-center gap-2 rounded-md border px-3 text-xs font-semibold transition ${heatmap ? "border-[#fd8d3c] bg-[#fd8d3c] text-[#1a0a05]" : "border-white/15 bg-white/5 text-white/75 hover:bg-white/10"}`}><Flame size={15} /> Heatmap</button>
-          <button type="button" onClick={() => setForecast((value) => !value)} aria-pressed={forecast} className={`flex min-h-10 items-center gap-2 rounded-md border px-3 text-xs font-semibold transition ${forecast ? "border-red-400 bg-red-500/20 text-red-100" : "border-white/15 bg-white/5 text-white/75 hover:bg-white/10"}`}><Activity size={15} /> Forecast</button>
-          <button type="button" onClick={() => setShowIncidents((value) => !value)} aria-pressed={showIncidents} className={`flex min-h-10 items-center gap-2 rounded-md border px-3 text-xs font-semibold transition ${showIncidents ? "border-[#fed976] bg-[#fed976] text-[#1a0a05]" : "border-white/15 bg-white/5 text-white/75 hover:bg-white/10"}`}><MapPin size={15} /> Incidents</button>
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="flex rounded-xl border border-[#dce2e8] bg-white p-1 shadow-sm">
+            {timeWindows.map((option) => (
+              <button key={option} type="button" onClick={() => setTimeWindow(option)} className={`min-h-9 rounded-lg px-3 text-xs font-medium transition ${timeWindow === option ? "bg-[#172033] text-white shadow-sm" : "text-[#738091] hover:bg-[#f1f4f6]"}`}>{option}</button>
+            ))}
+          </div>
+          <button type="button" onClick={resetView} className="flex min-h-11 items-center gap-2 rounded-xl border border-[#dce2e8] bg-white px-4 text-xs font-semibold text-[#445064] shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"><RotateCcw size={15} /> Reset view</button>
         </div>
       </header>
-      <section className="mx-auto mb-4 grid max-w-[1580px] grid-cols-2 gap-3 sm:grid-cols-3">
-        <div className="rounded-md border border-white/10 bg-[#101119] p-3"><p className="text-[9px] font-bold uppercase tracking-[0.14em] text-white/45">Total reports</p><p className="mt-1 text-2xl font-semibold text-[#fed976]">{totalCrime.toLocaleString()}</p></div>
-        <div className="rounded-md border border-white/10 bg-[#101119] p-3"><p className="text-[9px] font-bold uppercase tracking-[0.14em] text-white/45">Districts monitored</p><p className="mt-1 text-2xl font-semibold">{districts.length}</p></div>
-        <div className="col-span-2 rounded-md border border-white/10 bg-[#101119] p-3 sm:col-span-1"><p className="flex items-center gap-2 text-[9px] font-bold uppercase tracking-[0.14em] text-white/45"><Crosshair size={15} className="text-[#fd8d3c]" /> Active incidents</p><p className="mt-1 text-2xl font-semibold">{filteredIncidents.length}</p></div>
+
+      <section className="mb-5 grid grid-cols-2 gap-3 xl:grid-cols-4">
+        {[
+          { label: "Signals mapped", value: totalCrime.toLocaleString(), icon: Radio, tone: "text-[#d9482b] bg-[#fff0ec]" },
+          { label: "Active hotspots", value: districts.filter((district) => district.crime_count >= districtAverage).length, icon: ShieldCheck, tone: "text-[#172033] bg-[#f1f3f5]" },
+          { label: "Units in range", value: 24, icon: Route, tone: "text-[#2d8178] bg-[#eaf5f3]" },
+          { label: "Median response", value: "08m", icon: Timer, tone: "text-[#70a5ca] bg-[#edf5fa]" },
+        ].map(({ label, value, icon: Icon, tone }) => (
+          <article key={label} className="flex min-h-[96px] items-start justify-between rounded-[20px] border border-white/90 bg-white/90 p-4 shadow-[0_16px_36px_rgba(33,48,67,0.08)] backdrop-blur">
+            <div><p className="text-[9px] font-bold uppercase tracking-[0.16em] text-[#7b8796]">{label}</p><p className="mt-2 text-2xl font-semibold tracking-tight">{value}</p></div>
+            <span className={`flex size-9 items-center justify-center rounded-xl ${tone}`}><Icon size={16} /></span>
+          </article>
+        ))}
       </section>
+
       {showIncidents && (
         <IncidentFilterBar
           activeTypes={activeTypes}
@@ -79,7 +115,77 @@ export default function CrimeMapPage() {
           onClear={() => { setActiveTypes([]); setOpenOnly(false); }}
         />
       )}
-      <main className="mx-auto max-w-[1580px]"><MapView districts={districts} heatmap={heatmap} forecast={forecast} showIncidents={showIncidents} incidents={filteredIncidents} reportIncidents={incidents} /></main>
+
+      <main className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_350px]">
+        <section className="min-w-0 rounded-[26px] border border-white/90 bg-white/90 p-4 shadow-[0_22px_55px_rgba(33,48,67,0.1)] backdrop-blur sm:p-5">
+          <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <p className="flex items-center gap-2 text-sm font-semibold"><span className="size-2 rounded-full bg-[#2d8178]" /> Karnataka command region</p>
+              <p className="mt-1 text-[10px] text-[#7b8796]">Live operational view · {districts.length} monitored districts · {timeWindow} window</p>
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              <button type="button" onClick={() => setHeatmap((value) => !value)} aria-pressed={heatmap} className={`flex min-h-9 items-center gap-1.5 rounded-xl border px-3 text-xs font-semibold transition ${heatmap ? "border-[#d9482b] bg-[#fff0ec] text-[#d9482b]" : "border-[#dce2e8] bg-white text-[#667385] hover:bg-[#f5f7f8]"}`}><Flame size={14} /> Heatmap</button>
+              <button type="button" onClick={() => setForecast((value) => !value)} aria-pressed={forecast} className={`flex min-h-9 items-center gap-1.5 rounded-xl border px-3 text-xs font-semibold transition ${forecast ? "border-[#172033] bg-[#172033] text-white" : "border-[#dce2e8] bg-white text-[#667385] hover:bg-[#f5f7f8]"}`}><Activity size={14} /> Forecast</button>
+              <button type="button" onClick={() => setShowIncidents((value) => !value)} aria-pressed={showIncidents} className={`flex min-h-9 items-center gap-1.5 rounded-xl border px-3 text-xs font-semibold transition ${showIncidents ? "border-[#2d8178] bg-[#eaf5f3] text-[#2d8178]" : "border-[#dce2e8] bg-white text-[#667385] hover:bg-[#f5f7f8]"}`}><MapPin size={14} /> Incidents</button>
+            </div>
+          </div>
+          <MapView
+            districts={districts}
+            heatmap={heatmap}
+            forecast={forecast}
+            showIncidents={showIncidents}
+            incidents={filteredIncidents}
+            reportIncidents={incidents}
+            selectedDistrict={selectedDistrict}
+            onDistrictSelect={setSelectedDistrict}
+            className="!h-[470px] !min-h-0 !rounded-[20px]"
+          />
+        </section>
+
+        <aside className="grid gap-4 sm:grid-cols-2 xl:grid-cols-1">
+          <section className="rounded-[26px] border border-white/90 bg-white/90 p-5 shadow-[0_22px_55px_rgba(33,48,67,0.1)] backdrop-blur" aria-live="polite">
+            <div className="flex items-center justify-between">
+              <p className="text-[9px] font-bold uppercase tracking-[0.17em] text-[#7b8796]">Selected signal</p>
+              <span className={`rounded-full px-2.5 py-1 text-[9px] font-bold uppercase tracking-wide ${selectedDistrict && selectedDistrict.crime_count >= districtAverage ? "bg-[#fff0ec] text-[#d9482b]" : "bg-[#edf5fa] text-[#4d84aa]"}`}>{selectedDistrict && selectedDistrict.crime_count >= districtAverage ? "Priority" : "Watch"}</span>
+            </div>
+            {selectedDistrict ? (
+              <>
+                <div className="mt-4 flex items-center gap-3">
+                  <span className="flex size-11 items-center justify-center rounded-2xl bg-[#fff0ec] text-[#d9482b]"><Crosshair size={19} /></span>
+                  <div><h2 className="text-lg font-semibold">{selectedDistrict.district_name}</h2><p className="text-[10px] text-[#7b8796]">Karnataka district command</p></div>
+                </div>
+                <div className="mt-5 grid grid-cols-2 gap-2">
+                  <div className="rounded-2xl bg-[#f3f5f7] p-3"><p className="text-[8px] font-bold uppercase tracking-[0.13em] text-[#7b8796]">Reports</p><p className="mt-1 text-xl font-semibold">{selectedDistrict.crime_count}</p></div>
+                  <div className="rounded-2xl bg-[#f3f5f7] p-3"><p className="text-[8px] font-bold uppercase tracking-[0.13em] text-[#7b8796]">Vs baseline</p><p className={`mt-1 text-lg font-semibold ${baselineDelta >= 0 ? "text-[#d9482b]" : "text-[#2d8178]"}`}>{baselineDelta >= 0 ? "+" : ""}{baselineDelta}%</p></div>
+                </div>
+                <p className="mt-4 text-xs leading-5 text-[#677487]">{selectedDistrict.top_crime_type} is the leading category, with {selectedDistrict.crime_breakdown[selectedDistrict.top_crime_type.toLowerCase() as keyof typeof selectedDistrict.crime_breakdown] ?? 0} linked reports in the current intelligence window.</p>
+                <button type="button" onClick={() => setShowIncidents(true)} className="mt-5 flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#172033] px-4 text-xs font-semibold text-white transition hover:-translate-y-0.5 hover:bg-[#263248] hover:shadow-lg">Open incident cluster <ChevronRight size={15} /></button>
+              </>
+            ) : <p className="mt-5 text-sm text-[#7b8796]">Select a district on the map to inspect it.</p>}
+          </section>
+
+          <section className="rounded-[26px] border border-white/90 bg-white/90 p-5 shadow-[0_22px_55px_rgba(33,48,67,0.1)] backdrop-blur">
+            <div className="flex items-end justify-between">
+              <div><p className="text-[9px] font-bold uppercase tracking-[0.17em] text-[#d9482b]">Priority queue</p><h2 className="mt-1 text-sm font-semibold">Hotspot ranking</h2></div>
+              <TrendingUp size={17} className="text-[#70a5ca]" />
+            </div>
+            <ol className="mt-4 space-y-1.5">
+              {rankedDistricts.map((district, index) => {
+                const isActive = selectedDistrict?.district_name === district.district_name;
+                return (
+                  <li key={district.district_name}>
+                    <button type="button" onClick={() => setSelectedDistrict(district)} className={`grid w-full grid-cols-[22px_1fr_auto] items-center gap-2 rounded-xl px-2.5 py-2.5 text-left transition ${isActive ? "bg-[#fff0ec]" : "hover:bg-[#f3f5f7]"}`}>
+                      <span className="text-[9px] font-bold text-[#9aa4af]">0{index + 1}</span>
+                      <span><span className="block text-xs font-semibold">{district.district_name}</span><span className="mt-0.5 block text-[9px] text-[#8b96a3]">{district.top_crime_type} · Live data</span></span>
+                      <span className="text-xs font-semibold">{district.crime_count}</span>
+                    </button>
+                  </li>
+                );
+              })}
+            </ol>
+          </section>
+        </aside>
+      </main>
     </div>
   );
 }
