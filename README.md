@@ -1,156 +1,188 @@
-# Kangavalu (ಕಂಗಾವಲು) — KSP Crime Intelligence Command Workspace
+# Kangavalu - KSP Crime Intelligence Command Workspace
 
-> **A unified operational workspace for connected crime intelligence, investigations, and emerging patterns across Karnataka.**
+Kangavalu is an operational intelligence workspace built for the Karnataka State Police crime intelligence datathon. It brings FIR data, district-level analytics, incident reports, maps, network views, and AI-assisted investigation workflows into one web platform.
 
----
+## What It Includes
 
-## 🌟 Overview & Platform Vision
+- **Command dashboard**: Live incident metrics, priority case queues, field unit telemetry, and investigation pipeline summaries.
+- **Intelligence assistant**: Natural-language investigation support for searching FIRs, finding associates, retrieving case details, and generating crime statistics.
+- **Analytics workspace**: Trend, category, and district-level visualizations for crime intelligence review.
+- **Geospatial map**: District and incident mapping with filters, pins, legends, and incident detail panels.
+- **Network graph**: Entity and case relationship exploration for suspects, locations, assets, and investigations.
+- **Reports module**: Incident report creation, documentation support, and report export helpers.
 
-**Kangavalu** is an advanced operational intelligence platform designed for the **Karnataka State Police (KSP)**. It synthesizes multi-district FIR records, suspect networks, geospatial hotspots, and telemetry into a single, real-time command dashboard.
+## Tech Stack
 
-Built with high-performance web technologies and cloud serverless architecture, Kangavalu empowers crime analysts, investigating officers, and command staff to track active incidents, query intelligence via AI, and visualize criminal syndicates.
+### Frontend
 
----
+Location: `crime-platform/frontend/`
 
-## ✨ Key Features & Modules
+- Next.js 16 with the App Router
+- React 19 and TypeScript
+- Tailwind CSS 4
+- Framer Motion
+- Recharts
+- Leaflet and React Leaflet
+- Lucide React icons
+- UX4G component packages
 
-### 1. 📊 Live Command Overview (`/app/dashboard`)
-- **Incident Pulse**: Interactive real-time timeline visualizing daily registered incidents across district control rooms.
-- **Priority Queue**: Dynamic case feed highlighting high-risk and heinous cases with instant case details.
-- **Field Unit Telemetry**: Live status of active investigating officers and field deployment units.
-- **Case Pipeline Metrics**: Real-time aggregated counters for registered FIRs, active investigations, charge-sheeted cases, and closures.
+### Backend
 
-### 2. 💬 Intelligence Assistant (`/app/chat`)
-- **AI Crime Intelligence Terminal**: Interactive assistant for natural language querying of FIR datasets, suspect cross-referencing, and criminal history lookup.
+Location: `crime-platform/functions/`
 
-### 3. 📈 Analytics Telemetry (`/app/analytics`)
-- **Visual Analytics**: Interactive Recharts telemetry displaying crime category breakdowns, district distribution, and incident trend velocity over custom time windows.
+- `api_service`: lightweight Catalyst-compatible Express function used by the frontend live intelligence endpoints.
+- `ml_backend`: TypeScript Express API with layered controllers, services, repositories, AI orchestration, retrieval, citations, reports, and graph modules.
 
-### 4. 🗺️ Geospatial Uplink (`/app/map`)
-- **Crime Hotspot Mapping**: Spatial visualization of high-risk nodes, hotspot clusters, and district-level crime density across Karnataka.
+### Data
 
-### 5. 🕸️ Syndicate Nexus (`/app/network`)
-- **Network Graph Visualization**: Entity graph mapping connections between suspects, cases, assets, locations, and criminal syndicates.
+Location: `crime-platform/db/`
 
-### 6. 📁 Case Reports & Documentation (`/app/reports`)
-- Structured incident reporting, case export, and investigative file management.
+- `schema.sql`: database schema
+- `seed.sql`: canonical local seed dataset
+- `migrations/`: database migrations
+- `verify.js` and `seed.js`: database utility scripts
 
----
+## Repository Structure
 
-## 🏗️ Architecture & Technology Stack
-
-### Frontend Stack (`crime-platform/frontend/`)
-- **Framework**: Next.js 15 (App Router with `output: "export"`, `basePath: "/app"`, and `trailingSlash: true`)
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS + Custom CSS Design System (Glassmorphism, obsidian palette `#050505`, custom gradients)
-- **Animations**: Framer Motion for spring transitions, active nav layout animations, and fluid counters
-- **Icons**: Lucide React
-- **Charts**: Recharts
-
-### Backend & Serverless Stack (`crime-platform/backend/` & `crime-platform/functions/`)
-- **Serverless Compute**: Zoho Catalyst Serverless Functions (`functions/api_service`)
-- **API Framework**: Express.js with TypeScript
-- **Database**: Zoho Catalyst Data Store / PostgreSQL (with local fallback seed `db/seed.sql`)
-- **Logging & Security**: Helmet, CORS policies, Pino structured logger, rate limiting
-
----
-
-## 🗂️ Repository Structure
-
-```
-datathon/
-├── README.md
-└── crime-platform/
-    ├── .catalystrc                  # Catalyst project configuration
-    ├── catalyst.json                # Catalyst deployment targets (client & functions)
-    ├── LOCAL_DEVELOPMENT.md         # Local setup instructions
-    ├── db/                          # Database schemas and seed data
-    │   └── seed.sql                 # Canonical seed dataset
-    ├── backend/                     # Modular Express API service
-    │   └── src/                     # Controllers, middleware, services, and types
-    ├── functions/                   # Catalyst Serverless Functions
-    │   └── api_service/             # Express API function endpoint
-    │       ├── index.js             # Catalyst entry point
-    │       ├── local-server.js      # Standalone local development server
-    │       └── services/            # Intelligence data services
-    └── frontend/                    # Next.js App Router frontend
-        ├── public/                  # Static assets (KSP emblem, logos, OG images)
-        ├── src/
-        │   ├── app/                 # Next.js pages (dashboard, chat, analytics, map, network, login)
-        │   ├── components/          # Reusable UI components (Sidebar, LiveDataState, MotionProvider)
-        │   ├── hooks/               # Custom React hooks (useLiveIntelligence)
-        │   └── lib/                 # Utility functions & API client configuration
-        ├── next.config.ts           # Next.js configuration (basePath: /app, output: export)
-        └── .env.local               # Environment variables
+```text
+.
+|-- README.md
+`-- crime-platform/
+    |-- LOCAL_DEVELOPMENT.md
+    |-- catalyst.json
+    |-- db/
+    |   |-- schema.sql
+    |   |-- seed.sql
+    |   `-- migrations/
+    |-- frontend/
+    |   |-- src/
+    |   |   |-- app/
+    |   |   |-- components/
+    |   |   |-- hooks/
+    |   |   `-- lib/
+    |   |-- public/
+    |   |-- next.config.ts
+    |   `-- package.json
+    `-- functions/
+        |-- api_service/
+        |   |-- index.js
+        |   |-- local-server.js
+        |   |-- services/
+        |   `-- package.json
+        `-- ml_backend/
+            |-- src/
+            |   |-- ai/
+            |   |-- analytics/
+            |   |-- controllers/
+            |   |-- repositories/
+            |   |-- routes/
+            |   |-- services/
+            |   `-- server.ts
+            |-- docs/
+            `-- package.json
 ```
 
----
+## Local Development
 
-## 🌐 Dynamic API & Environment Architecture
+Run the API and frontend in separate terminals.
 
-Kangavalu features **automatic environment resolution** for API endpoints:
+### 1. Install dependencies
 
-- **Local Development (`localhost`)**: The frontend automatically routes API requests to `http://localhost:3001/server/api_service`.
-- **Cloud Deployment (`*.catalystserverless.in`)**: When hosted on Zoho Catalyst, the frontend automatically routes API requests to the relative server path `/server/api_service`.
-
-If the local backend service is offline during local runs, the frontend cleanly presents a non-blocking **"Catalyst is not reachable"** indicator with a manual retry control.
-
----
-
-## 🚀 Running Locally
-
-### 1. Start Backend Service (Port 3001)
-
-#### Option A: Catalyst CLI Serve (Requires Catalyst Project Access)
 ```powershell
-# From crime-platform root directory:
-catalyst serve --only functions:api_service --http 3001 --no-open
+cd crime-platform\functions\api_service
+npm install
+
+cd ..\ml_backend
+npm install
+
+cd ..\..\frontend
+npm install
 ```
 
-#### Option B: Standalone Local API Runner (No Catalyst Access Needed)
+### 2. Start the local API service
+
+For teammates without access to the linked Zoho Catalyst project:
+
 ```powershell
-# From crime-platform/functions/api_service:
+cd crime-platform\functions\api_service
 npm run serve:local
 ```
 
-> 📍 **API Endpoint**: `http://localhost:3001/server/api_service`  
-> 🏥 **Health Check**: `http://localhost:3001/server/api_service/health`
+The local API runs at:
 
----
+```text
+http://localhost:3001/server/api_service
+```
 
-### 2. Start Frontend Dev Server (Port 3000)
+Health check:
+
+```text
+http://localhost:3001/server/api_service/health
+```
+
+If your Catalyst account has access to the linked project, you can serve the function through Catalyst instead:
 
 ```powershell
-# Navigate to frontend directory:
-cd crime-platform/frontend
+cd crime-platform
+catalyst serve --http 3001 --no-open
+```
 
-# Start Next.js dev server:
+### 3. Start the frontend
+
+```powershell
+cd crime-platform\frontend
 npm run dev
 ```
 
-> 🌐 **App Workspace URL**: **`http://localhost:3000/app`** (or `http://localhost:3000/app/dashboard`)
+Open:
 
----
+```text
+http://localhost:3000/app/dashboard
+```
 
-## 🚢 Deploying to Zoho Catalyst
+The frontend polls:
 
-To build and deploy the complete platform (static client + serverless functions) to Zoho Catalyst:
+```text
+http://localhost:3001/server/api_service/intelligence
+```
+
+Set `NEXT_PUBLIC_CATALYST_API_URL` only if your local API URL differs. See `crime-platform/frontend/.env.local.example`.
+
+## ML Backend
+
+The TypeScript backend can be run independently for development:
 
 ```powershell
-# Navigate to crime-platform:
-cd crime-platform
+cd crime-platform\functions\ml_backend
+npm run dev
+```
 
-# Build frontend static export:
-cd frontend
+Useful scripts:
+
+- `npm run build`: compile TypeScript
+- `npm run typecheck`: run TypeScript checks without emitting files
+- `npm run start`: run the compiled server from `dist/`
+
+Additional AI architecture notes are in `crime-platform/functions/ml_backend/docs/ai-architecture.md`.
+
+## Deployment
+
+Build the static frontend export and deploy the Catalyst project:
+
+```powershell
+cd crime-platform\frontend
 npm run build
-cd ..
 
-# Deploy to Catalyst Cloud:
+cd ..
 catalyst deploy
 ```
 
----
+## Notes
 
-## 🛡️ License & Attributions
+- `api_service` can use Zoho Catalyst Data Store when the required tables exist.
+- The standalone local API runner reads from `db/seed.sql`, so it can be used without Catalyst project access.
+- Keep database schema changes in `crime-platform/db/` and mirror required function-level data updates where applicable.
 
-Developed for the Karnataka State Police (KSP) Crime Intelligence Datathon. All rights reserved.
+## Attribution
+
+Developed by Axiom Crew for the Karnataka State Police Crime Intelligence Datathon.
