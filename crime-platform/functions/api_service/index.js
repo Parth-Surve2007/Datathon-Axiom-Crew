@@ -2,7 +2,7 @@
 
 const express = require('express');
 const catalyst = require('zcatalyst-sdk-node');
-const { loadIntelligenceTables } = require('./services/db.service');
+const { loadIntelligenceTables, REQUIRED_TABLES } = require('./services/db.service');
 const { buildPayload } = require('./services/intelligence.service');
 const { answerQuery } = require('./services/ai.service');
 
@@ -85,6 +85,85 @@ function errorDetail(error) {
   return String(error || 'Unknown Catalyst error');
 }
 
+const num = (value) => Number(value || 0);
+const oneBy = (rows, key) => new Map((rows || []).map((row) => [String(row[key]), row]));
+
+function crimeTypeFromHead(name) {
+  const value = String(name || '').toLowerCase();
+  if (value.includes('murder')) return 'Murder';
+  if (value.includes('body') || value.includes('assault') || value.includes('hurt')) return 'Assault';
+  if (value.includes('robbery')) return 'Robbery';
+  if (value.includes('cyber') || value.includes('financial') || value.includes('fraud')) return 'Fraud';
+  if (value.includes('property') || value.includes('theft')) return 'Theft';
+  return 'Other';
+}
+
+function buildMapDistricts(tables) {
+  const unitsById = oneBy(tables.Unit, 'UnitID');
+  const districtsById = oneBy(tables.District, 'DistrictID');
+  const headsById = oneBy(tables.CrimeHead, 'CrimeHeadID');
+  const grouped = new Map();
+
+  for (const item of tables.CaseMaster || []) {
+    const unit = unitsById.get(String(item.PoliceStationID));
+    const district = districtsById.get(String(unit?.DistrictID));
+    const name = district?.DistrictName || unit?.UnitName || 'Karnataka';
+    const group = grouped.get(name) || { district_name: name, crime_count: 0, lat: 0, lng: 0, crime_breakdown: { theft: 0, assault: 0, robbery: 0, fraud: 0 } };
+    const type = crimeTypeFromHead(headsById.get(String(item.CrimeMajorHeadID))?.CrimeGroupName).toLowerCase();
+    group.crime_count += 1;
+    group.lat += num(item.latitude);
+    group.lng += num(item.longitude);
+    group.crime_breakdown[type in group.crime_breakdown ? type : 'fraud'] += 1;
+    grouped.set(name, group);
+  }
+
+  return [...grouped.values()].map((group) => {
+    const top = Object.entries(group.crime_breakdown).sort((a, b) => b[1] - a[1])[0]?.[0] || 'theft';
+    return {
+      ...group,
+      lat: group.crime_count ? group.lat / group.crime_count : 0,
+      lng: group.crime_count ? group.lng / group.crime_count : 0,
+      top_crime_type: top.charAt(0).toUpperCase() + top.slice(1),
+    };
+  }).sort((a, b) => b.crime_count - a.crime_count);
+}
+
+function buildMapIncidents(tables) {
+  const unitsById = oneBy(tables.Unit, 'UnitID');
+  const districtsById = oneBy(tables.District, 'DistrictID');
+  const headsById = oneBy(tables.CrimeHead, 'CrimeHeadID');
+  const statusesById = oneBy(tables.CaseStatusMaster, 'CaseStatusID');
+  const accusedByCase = new Map();
+  const victimsByCase = new Map();
+  const sectionByCase = new Map();
+
+  for (const accused of tables.Accused || []) accusedByCase.set(String(accused.CaseMasterID), accused.AccusedName);
+  for (const victim of tables.Victim || []) victimsByCase.set(String(victim.CaseMasterID), victim.VictimName);
+  for (const section of tables.ActSectionAssociation || []) {
+    if (!sectionByCase.has(String(section.CaseMasterID))) sectionByCase.set(String(section.CaseMasterID), `${section.ActID} ${section.SectionID}`);
+  }
+
+  return [...(tables.CaseMaster || [])].map((item) => {
+    const unit = unitsById.get(String(item.PoliceStationID));
+    const district = districtsById.get(String(unit?.DistrictID));
+    const status = String(statusesById.get(String(item.CaseStatusID))?.CaseStatusName || 'Open');
+    return {
+      id: String(item.CaseNo || item.CrimeNo || item.CaseMasterID),
+      type: crimeTypeFromHead(headsById.get(String(item.CrimeMajorHeadID))?.CrimeGroupName),
+      lat: num(item.latitude),
+      lng: num(item.longitude),
+      location: unit?.UnitName || district?.DistrictName || 'Karnataka',
+      date: String(item.CrimeRegisteredDate || '').slice(0, 10),
+      accused: accusedByCase.get(String(item.CaseMasterID)) || 'Unknown',
+      victim: victimsByCase.get(String(item.CaseMasterID)) || 'Unknown',
+      status: status.toLowerCase().includes('charge') ? 'Chargesheet Filed' : status.toLowerCase().includes('closed') ? 'Closed' : status.toLowerCase().includes('investigation') ? 'Under Investigation' : 'Open',
+      district: district?.DistrictName || 'Karnataka',
+      severity: num(item.GravityOffenceID) === 1 ? 'High' : num(item.GravityOffenceID) === 2 ? 'Medium' : 'Low',
+      ipc_section: sectionByCase.get(String(item.CaseMasterID)) || 'Act/section pending',
+    };
+  }).filter((item) => item.lat && item.lng);
+}
+
 api.get(['/', '/health'], async (req, res) => {
   try {
     const payload = await livePayload(req);
@@ -104,6 +183,33 @@ api.get('/tables', async (req, res) => {
   }
 });
 
+api.get('/data-model', async (req, res) => {
+  try {
+    const { tables } = await liveIntelligence(req);
+    res.json({
+      source: tables.__source || 'Zoho Catalyst Data Store',
+      entities: REQUIRED_TABLES.map((entity) => ({ entity, records: (tables[entity] || []).length })),
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Unable to load the canonical FIR data model.', detail: errorDetail(error) });
+  }
+});
+
+api.get('/entities/:entity', async (req, res) => {
+  try {
+    const entity = REQUIRED_TABLES.find((name) => name.toLowerCase() === String(req.params.entity).toLowerCase());
+    if (!entity) return res.status(404).json({ error: 'Unknown canonical ER entity.' });
+    const page = Math.max(1, Number.parseInt(req.query.page, 10) || 1);
+    const limit = Math.min(200, Math.max(1, Number.parseInt(req.query.limit, 10) || 50));
+    const { tables } = await liveIntelligence(req);
+    const rows = tables[entity] || [];
+    const offset = (page - 1) * limit;
+    res.json({ entity, source: tables.__source || 'Zoho Catalyst Data Store', total: rows.length, page, limit, data: rows.slice(offset, offset + limit) });
+  } catch (error) {
+    res.status(500).json({ error: 'Unable to load the requested FIR entity.', detail: errorDetail(error) });
+  }
+});
+
 api.get('/intelligence', async (req, res) => {
   try {
     res.setHeader('Cache-Control', 'no-store');
@@ -114,14 +220,127 @@ api.get('/intelligence', async (req, res) => {
   }
 });
 
-api.get('/map', (req, res) => {
-  res.setHeader('Cache-Control', 'no-store');
-  res.json(mapDistricts);
+api.get('/map', async (req, res) => {
+  try {
+    const { tables } = await liveIntelligence(req);
+    res.setHeader('Cache-Control', 'no-store');
+    res.json(buildMapDistricts(tables));
+  } catch (error) {
+    res.status(500).json({ error: 'Unable to load live map data.', detail: errorDetail(error) });
+  }
 });
 
-api.get('/incidents', (req, res) => {
-  res.setHeader('Cache-Control', 'no-store');
-  res.json({ incidents });
+api.get('/incidents', async (req, res) => {
+  try {
+    const { tables } = await liveIntelligence(req);
+    res.setHeader('Cache-Control', 'no-store');
+    res.json({ incidents: buildMapIncidents(tables) });
+  } catch (error) {
+    res.status(500).json({ error: 'Unable to load live incident data.', detail: errorDetail(error) });
+  }
+});
+
+api.get('/seed-datastore', async (req, res) => {
+  try {
+    const app = catalyst.initialize(req);
+    const { loadLocalSeed } = require('./services/db.service');
+    const localTables = loadLocalSeed();
+    const results = {};
+    const errors = {};
+
+    for (const tableName of REQUIRED_TABLES) {
+      const rows = localTables[tableName] || [];
+      if (!rows.length) {
+        results[tableName] = 0;
+        continue;
+      }
+      const table = app.datastore().table(tableName);
+      let insertedCount = 0;
+      
+      try {
+        // Insert rows in batches of 20
+        for (let i = 0; i < rows.length; i += 20) {
+          const chunk = rows.slice(i, i + 20);
+          await table.insertRows(chunk);
+          insertedCount += chunk.length;
+        }
+        results[tableName] = insertedCount;
+      } catch (err) {
+        errors[tableName] = errorDetail(err);
+        results[tableName] = insertedCount;
+      }
+    }
+    res.json({ ok: Object.keys(errors).length === 0, message: 'Data Store seeding attempted.', inserted: results, errors });
+  } catch (error) {
+    res.status(500).json({ ok: false, error: errorDetail(error) });
+  }
+});
+
+api.get('/debug-columns', async (req, res) => {
+  try {
+    const app = catalyst.initialize(req);
+    const tableInstance = app.datastore().table('State');
+    const columns = await tableInstance.getAllColumns();
+    res.json({ ok: true, table: 'State', columns });
+  } catch (error) {
+    res.status(500).json({ ok: false, error: errorDetail(error) });
+  }
+});
+
+api.get('/create-columns', async (req, res) => {
+  try {
+    const app = catalyst.initialize(req);
+    const { loadLocalSeed } = require('./services/db.service');
+    const localTables = loadLocalSeed();
+    const results = {};
+    const errors = {};
+
+    for (const tableName of REQUIRED_TABLES) {
+      const rows = localTables[tableName] || [];
+      if (!rows.length) continue;
+      const firstRow = rows[0];
+      const colsToCreate = Object.keys(firstRow).map((colName) => {
+        const val = firstRow[colName];
+        const isNum = typeof val === 'number' || (typeof val === 'string' && /^-?\d+$/.test(val));
+        return {
+          column_name: colName,
+          data_type: isNum ? 'bigint' : 'varchar',
+          max_length: isNum ? '19' : '255',
+          is_mandatory: false
+        };
+      });
+
+      try {
+        const tableInstance = app.datastore().table(tableName);
+        const existing = await tableInstance.getAllColumns();
+        const existingNames = new Set((existing || []).map((c) => String(c.column_name).toLowerCase()));
+        
+        const newCols = colsToCreate.filter((c) => !existingNames.has(c.column_name.toLowerCase()));
+        if (!newCols.length) {
+          results[tableName] = 'All columns exist';
+          continue;
+        }
+
+        const request = {
+          method: 'POST',
+          path: `/table/${tableName}/column`,
+          data: newCols,
+          type: 'json',
+          catalyst: true,
+          track: true,
+          user: 'user'
+        };
+        const resp = await tableInstance.requester.send(request);
+        results[tableName] = resp.data;
+      } catch (err) {
+        errors[tableName] = errorDetail(err);
+      }
+    }
+
+    res.json({ ok: Object.keys(errors).length === 0, results, errors });
+  } catch (error) {
+    res.status(500).json({ ok: false, error: errorDetail(error) });
+  }
 });
 
 api.post('/chat', async (req, res) => {

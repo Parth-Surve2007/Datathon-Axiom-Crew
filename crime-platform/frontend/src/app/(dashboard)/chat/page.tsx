@@ -28,7 +28,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { aiBackendBase } from "@/lib/intelligence";
+import { aiBackendBase, catalystBackendBase } from "@/lib/intelligence";
 import { useLiveIntelligence } from "@/hooks/useLiveIntelligence";
 
 type MessageSender = "bot" | "user";
@@ -127,15 +127,25 @@ export default function Chat() {
     setIsResponding(true);
 
     try {
-      const response = await fetch(`${aiBackendBase}/chat`, {
+      let response = await fetch(`${aiBackendBase}/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: query }),
+        body: JSON.stringify({ message: query, query }),
       });
+
+      if (!response.ok) {
+        console.warn("ML backend chat returned non-200, attempting catalystBackendBase fallback...");
+        response = await fetch(`${catalystBackendBase}/chat`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ query, message: query }),
+        });
+      }
+
       const result = await response.json();
       if (!response.ok) throw new Error(result.detail || result.error || "AI query failed");
       
-      const botText = result.data?.text || result.answer || "No response received";
+      const botText = result.data?.text || result.answer || result.text || "No response received";
 
       // Normalize the intelligence object — guarantee all arrays exist
       const normalizedIntelligence = {

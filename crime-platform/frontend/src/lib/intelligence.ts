@@ -11,6 +11,7 @@ export type IntelligencePayload = {
     arrests: number;
     highPriority: number;
   };
+  entityCoverage: Array<{ entity: string; records: number }>;
   pulse: Record<RangeKey, { labels: string[]; values: number[] }>;
   investigations: Array<{
     id: string;
@@ -63,7 +64,7 @@ export const aiBackendBase = (() => {
     if (isLocalhost) {
       return process.env.NEXT_PUBLIC_AI_BACKEND_URL?.replace(/\/$/, "") || "http://localhost:3001/server/ml_backend/api/v1/ai";
     }
-    return "/api/v1/ai";
+    return "/server/ml_backend/api/v1/ai";
   }
   return process.env.NEXT_PUBLIC_AI_BACKEND_URL?.replace(/\/$/, "") || "http://localhost:3001/server/ml_backend/api/v1/ai";
 })();

@@ -4,7 +4,7 @@
     "env": 1
   },
   "actives": {
-    "project": 1,
+    "project": 3,
     "env": 1
   },
   "projects": [
@@ -15,6 +15,50 @@
       "domain": {
         "id": "50044085364",
         "name": "ksp-crime-intel-60078654574.development"
+      },
+      "timezone": "Asia/Kolkata",
+      "env": [
+        {
+          "idx": 1,
+          "id": "60078654574",
+          "name": "Development",
+          "type": 3
+        }
+      ]
+    },
+    {
+      "idx": 2,
+      "id": "49792000000052054",
+      "name": "KSP-Crime-Intel-Prod",
+      "domain": {
+        "id": "50044296348",
+        "name": "ksp-crime-intel-prod-60078654574.development"
+      },
+      "timezone": "Asia/Kolkata",
+      "env": [
+        {
+          "idx": 1,
+          "id": "60078654574",
+          "name": "Development",
+          "type": 3,
+          "env_status": "Active",
+          "project_details": {
+            "project_name": "KSP-Crime-Intel-Prod",
+            "id": "49792000000052054",
+            "project_type": "Live"
+          },
+          "is_default": true,
+          "action_required": false
+        }
+      ]
+    },
+    {
+      "idx": 3,
+      "id": "49792000000076003",
+      "name": "KSP-Crime-Intel-Full",
+      "domain": {
+        "id": "50044297199",
+        "name": "ksp-crime-intel-full-60078654574.development"
       },
       "timezone": "Asia/Kolkata",
       "env": [

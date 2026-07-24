@@ -1,0 +1,3492 @@
+{
+  "name": "project-template",
+  "version": "1.0.0",
+  "parameters": {},
+  "components": {
+    "Pipelines": [],
+    "ApplicationAlerts": [],
+    "Stratus": [],
+    "Functions": [
+      {
+        "type": "function",
+        "name": "api_service",
+        "properties": {
+          "stack": "node18",
+          "code": {
+            "path": "functions/api_service.zip"
+          },
+          "configuration": {
+            "environment": {
+              "variables": {},
+              "last_updated_time": 1784612935140
+            },
+            "memory": 256
+          },
+          "type": "applogic",
+          "name": "api_service"
+        },
+        "dependsOn": []
+      }
+    ],
+    "Add-onServices": [],
+    "WebClient": [
+      {
+        "type": "client",
+        "name": "crime_platform_client",
+        "properties": {
+          "app_name": "crime_platform_client",
+          "modified_time": "Jul 21, 2026 11:18 AM",
+          "code": {
+            "path": "webclient/crime_platform_client.zip"
+          }
+        },
+        "dependsOn": []
+      }
+    ],
+    "Cron": [],
+    "SchedulingJobpool": [],
+    "Filestore": [],
+    "Mail": [],
+    "Zia": [],
+    "Datastore": [
+      {
+        "type": "table",
+        "name": "State",
+        "properties": {
+          "table_name": "State"
+        },
+        "dependsOn": []
+      },
+      {
+        "type": "column",
+        "name": "State-StateID",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "StateID",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "State",
+          "table_name": "State",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.State"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "State-StateName",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "StateName",
+          "data_type": "varchar",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "State",
+          "table_name": "State",
+          "max_length": 255
+        },
+        "dependsOn": [
+          "Datastore.table.State"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "State-NationalityID",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "NationalityID",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "State",
+          "table_name": "State",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.State"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "State-Active",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "Active",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "State",
+          "table_name": "State",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.State"
+        ]
+      },
+      {
+        "type": "tableScope",
+        "name": "State-App Administrator",
+        "properties": {
+          "role_name": "App Administrator",
+          "table_scope": "GLOBAL",
+          "type": "App Administrator",
+          "table_name": "State"
+        },
+        "dependsOn": [
+          "Datastore.table.State"
+        ]
+      },
+      {
+        "type": "table",
+        "name": "District",
+        "properties": {
+          "table_name": "District"
+        },
+        "dependsOn": []
+      },
+      {
+        "type": "column",
+        "name": "District-DistrictID",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "DistrictID",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "District",
+          "table_name": "District",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.District"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "District-DistrictName",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "DistrictName",
+          "data_type": "varchar",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "District",
+          "table_name": "District",
+          "max_length": 255
+        },
+        "dependsOn": [
+          "Datastore.table.District"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "District-StateID",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "StateID",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "District",
+          "table_name": "District",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.District"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "District-Active",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "Active",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "District",
+          "table_name": "District",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.District"
+        ]
+      },
+      {
+        "type": "tableScope",
+        "name": "District-App Administrator",
+        "properties": {
+          "role_name": "App Administrator",
+          "table_scope": "GLOBAL",
+          "type": "App Administrator",
+          "table_name": "District"
+        },
+        "dependsOn": [
+          "Datastore.table.District"
+        ]
+      },
+      {
+        "type": "table",
+        "name": "UnitType",
+        "properties": {
+          "table_name": "UnitType"
+        },
+        "dependsOn": []
+      },
+      {
+        "type": "column",
+        "name": "UnitType-UnitTypeID",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "UnitTypeID",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "UnitType",
+          "table_name": "UnitType",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.UnitType"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "UnitType-UnitTypeName",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "UnitTypeName",
+          "data_type": "varchar",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "UnitType",
+          "table_name": "UnitType",
+          "max_length": 255
+        },
+        "dependsOn": [
+          "Datastore.table.UnitType"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "UnitType-CityDistState",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "CityDistState",
+          "data_type": "varchar",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "UnitType",
+          "table_name": "UnitType",
+          "max_length": 255
+        },
+        "dependsOn": [
+          "Datastore.table.UnitType"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "UnitType-Hierarchy",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "Hierarchy",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "UnitType",
+          "table_name": "UnitType",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.UnitType"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "UnitType-Active",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "Active",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "UnitType",
+          "table_name": "UnitType",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.UnitType"
+        ]
+      },
+      {
+        "type": "tableScope",
+        "name": "UnitType-App Administrator",
+        "properties": {
+          "role_name": "App Administrator",
+          "table_scope": "GLOBAL",
+          "type": "App Administrator",
+          "table_name": "UnitType"
+        },
+        "dependsOn": [
+          "Datastore.table.UnitType"
+        ]
+      },
+      {
+        "type": "table",
+        "name": "Unit",
+        "properties": {
+          "table_name": "Unit"
+        },
+        "dependsOn": []
+      },
+      {
+        "type": "column",
+        "name": "Unit-UnitID",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "UnitID",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "Unit",
+          "table_name": "Unit",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.Unit"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "Unit-UnitName",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "UnitName",
+          "data_type": "varchar",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "Unit",
+          "table_name": "Unit",
+          "max_length": 255
+        },
+        "dependsOn": [
+          "Datastore.table.Unit"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "Unit-TypeID",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "TypeID",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "Unit",
+          "table_name": "Unit",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.Unit"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "Unit-ParentUnit",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "ParentUnit",
+          "data_type": "varchar",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "Unit",
+          "table_name": "Unit",
+          "max_length": 255
+        },
+        "dependsOn": [
+          "Datastore.table.Unit"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "Unit-NationalityID",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "NationalityID",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "Unit",
+          "table_name": "Unit",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.Unit"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "Unit-StateID",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "StateID",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "Unit",
+          "table_name": "Unit",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.Unit"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "Unit-DistrictID",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "DistrictID",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "Unit",
+          "table_name": "Unit",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.Unit"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "Unit-Active",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "Active",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "Unit",
+          "table_name": "Unit",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.Unit"
+        ]
+      },
+      {
+        "type": "tableScope",
+        "name": "Unit-App Administrator",
+        "properties": {
+          "role_name": "App Administrator",
+          "table_scope": "GLOBAL",
+          "type": "App Administrator",
+          "table_name": "Unit"
+        },
+        "dependsOn": [
+          "Datastore.table.Unit"
+        ]
+      },
+      {
+        "type": "table",
+        "name": "Rank",
+        "properties": {
+          "table_name": "Rank"
+        },
+        "dependsOn": []
+      },
+      {
+        "type": "column",
+        "name": "Rank-RankID",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "RankID",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "Rank",
+          "table_name": "Rank",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.Rank"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "Rank-RankName",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "RankName",
+          "data_type": "varchar",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "Rank",
+          "table_name": "Rank",
+          "max_length": 255
+        },
+        "dependsOn": [
+          "Datastore.table.Rank"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "Rank-Hierarchy",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "Hierarchy",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "Rank",
+          "table_name": "Rank",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.Rank"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "Rank-Active",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "Active",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "Rank",
+          "table_name": "Rank",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.Rank"
+        ]
+      },
+      {
+        "type": "tableScope",
+        "name": "Rank-App Administrator",
+        "properties": {
+          "role_name": "App Administrator",
+          "table_scope": "GLOBAL",
+          "type": "App Administrator",
+          "table_name": "Rank"
+        },
+        "dependsOn": [
+          "Datastore.table.Rank"
+        ]
+      },
+      {
+        "type": "table",
+        "name": "Designation",
+        "properties": {
+          "table_name": "Designation"
+        },
+        "dependsOn": []
+      },
+      {
+        "type": "column",
+        "name": "Designation-DesignationID",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "DesignationID",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "Designation",
+          "table_name": "Designation",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.Designation"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "Designation-DesignationName",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "DesignationName",
+          "data_type": "varchar",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "Designation",
+          "table_name": "Designation",
+          "max_length": 255
+        },
+        "dependsOn": [
+          "Datastore.table.Designation"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "Designation-Active",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "Active",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "Designation",
+          "table_name": "Designation",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.Designation"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "Designation-SortOrder",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "SortOrder",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "Designation",
+          "table_name": "Designation",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.Designation"
+        ]
+      },
+      {
+        "type": "tableScope",
+        "name": "Designation-App Administrator",
+        "properties": {
+          "role_name": "App Administrator",
+          "table_scope": "GLOBAL",
+          "type": "App Administrator",
+          "table_name": "Designation"
+        },
+        "dependsOn": [
+          "Datastore.table.Designation"
+        ]
+      },
+      {
+        "type": "table",
+        "name": "Employee",
+        "properties": {
+          "table_name": "Employee"
+        },
+        "dependsOn": []
+      },
+      {
+        "type": "column",
+        "name": "Employee-EmployeeID",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "EmployeeID",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "Employee",
+          "table_name": "Employee",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.Employee"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "Employee-DistrictID",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "DistrictID",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "Employee",
+          "table_name": "Employee",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.Employee"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "Employee-UnitID",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "UnitID",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "Employee",
+          "table_name": "Employee",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.Employee"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "Employee-RankID",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "RankID",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "Employee",
+          "table_name": "Employee",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.Employee"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "Employee-DesignationID",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "DesignationID",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "Employee",
+          "table_name": "Employee",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.Employee"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "Employee-KGID",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "KGID",
+          "data_type": "varchar",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "Employee",
+          "table_name": "Employee",
+          "max_length": 255
+        },
+        "dependsOn": [
+          "Datastore.table.Employee"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "Employee-FirstName",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "FirstName",
+          "data_type": "varchar",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "Employee",
+          "table_name": "Employee",
+          "max_length": 255
+        },
+        "dependsOn": [
+          "Datastore.table.Employee"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "Employee-EmployeeDOB",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "EmployeeDOB",
+          "data_type": "varchar",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "Employee",
+          "table_name": "Employee",
+          "max_length": 255
+        },
+        "dependsOn": [
+          "Datastore.table.Employee"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "Employee-GenderID",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "GenderID",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "Employee",
+          "table_name": "Employee",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.Employee"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "Employee-BloodGroupID",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "BloodGroupID",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "Employee",
+          "table_name": "Employee",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.Employee"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "Employee-PhysicallyChallenged",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "PhysicallyChallenged",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "Employee",
+          "table_name": "Employee",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.Employee"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "Employee-AppointmentDate",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "AppointmentDate",
+          "data_type": "varchar",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "Employee",
+          "table_name": "Employee",
+          "max_length": 255
+        },
+        "dependsOn": [
+          "Datastore.table.Employee"
+        ]
+      },
+      {
+        "type": "tableScope",
+        "name": "Employee-App Administrator",
+        "properties": {
+          "role_name": "App Administrator",
+          "table_scope": "GLOBAL",
+          "type": "App Administrator",
+          "table_name": "Employee"
+        },
+        "dependsOn": [
+          "Datastore.table.Employee"
+        ]
+      },
+      {
+        "type": "table",
+        "name": "CaseCategory",
+        "properties": {
+          "table_name": "CaseCategory"
+        },
+        "dependsOn": []
+      },
+      {
+        "type": "column",
+        "name": "CaseCategory-CaseCategoryID",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "CaseCategoryID",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "CaseCategory",
+          "table_name": "CaseCategory",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.CaseCategory"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "CaseCategory-LookupValue",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "LookupValue",
+          "data_type": "varchar",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "CaseCategory",
+          "table_name": "CaseCategory",
+          "max_length": 255
+        },
+        "dependsOn": [
+          "Datastore.table.CaseCategory"
+        ]
+      },
+      {
+        "type": "tableScope",
+        "name": "CaseCategory-App Administrator",
+        "properties": {
+          "role_name": "App Administrator",
+          "table_scope": "GLOBAL",
+          "type": "App Administrator",
+          "table_name": "CaseCategory"
+        },
+        "dependsOn": [
+          "Datastore.table.CaseCategory"
+        ]
+      },
+      {
+        "type": "table",
+        "name": "GravityOffence",
+        "properties": {
+          "table_name": "GravityOffence"
+        },
+        "dependsOn": []
+      },
+      {
+        "type": "column",
+        "name": "GravityOffence-GravityOffenceID",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "GravityOffenceID",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "GravityOffence",
+          "table_name": "GravityOffence",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.GravityOffence"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "GravityOffence-LookupValue",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "LookupValue",
+          "data_type": "varchar",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "GravityOffence",
+          "table_name": "GravityOffence",
+          "max_length": 255
+        },
+        "dependsOn": [
+          "Datastore.table.GravityOffence"
+        ]
+      },
+      {
+        "type": "tableScope",
+        "name": "GravityOffence-App Administrator",
+        "properties": {
+          "role_name": "App Administrator",
+          "table_scope": "GLOBAL",
+          "type": "App Administrator",
+          "table_name": "GravityOffence"
+        },
+        "dependsOn": [
+          "Datastore.table.GravityOffence"
+        ]
+      },
+      {
+        "type": "table",
+        "name": "CrimeHead",
+        "properties": {
+          "table_name": "CrimeHead"
+        },
+        "dependsOn": []
+      },
+      {
+        "type": "column",
+        "name": "CrimeHead-CrimeHeadID",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "CrimeHeadID",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "CrimeHead",
+          "table_name": "CrimeHead",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.CrimeHead"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "CrimeHead-CrimeGroupName",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "CrimeGroupName",
+          "data_type": "varchar",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "CrimeHead",
+          "table_name": "CrimeHead",
+          "max_length": 255
+        },
+        "dependsOn": [
+          "Datastore.table.CrimeHead"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "CrimeHead-Active",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "Active",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "CrimeHead",
+          "table_name": "CrimeHead",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.CrimeHead"
+        ]
+      },
+      {
+        "type": "tableScope",
+        "name": "CrimeHead-App Administrator",
+        "properties": {
+          "role_name": "App Administrator",
+          "table_scope": "GLOBAL",
+          "type": "App Administrator",
+          "table_name": "CrimeHead"
+        },
+        "dependsOn": [
+          "Datastore.table.CrimeHead"
+        ]
+      },
+      {
+        "type": "table",
+        "name": "CrimeSubHead",
+        "properties": {
+          "table_name": "CrimeSubHead"
+        },
+        "dependsOn": []
+      },
+      {
+        "type": "column",
+        "name": "CrimeSubHead-CrimeSubHeadID",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "CrimeSubHeadID",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "CrimeSubHead",
+          "table_name": "CrimeSubHead",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.CrimeSubHead"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "CrimeSubHead-CrimeHeadID",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "CrimeHeadID",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "CrimeSubHead",
+          "table_name": "CrimeSubHead",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.CrimeSubHead"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "CrimeSubHead-CrimeHeadName",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "CrimeHeadName",
+          "data_type": "varchar",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "CrimeSubHead",
+          "table_name": "CrimeSubHead",
+          "max_length": 255
+        },
+        "dependsOn": [
+          "Datastore.table.CrimeSubHead"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "CrimeSubHead-SeqID",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "SeqID",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "CrimeSubHead",
+          "table_name": "CrimeSubHead",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.CrimeSubHead"
+        ]
+      },
+      {
+        "type": "tableScope",
+        "name": "CrimeSubHead-App Administrator",
+        "properties": {
+          "role_name": "App Administrator",
+          "table_scope": "GLOBAL",
+          "type": "App Administrator",
+          "table_name": "CrimeSubHead"
+        },
+        "dependsOn": [
+          "Datastore.table.CrimeSubHead"
+        ]
+      },
+      {
+        "type": "table",
+        "name": "Act",
+        "properties": {
+          "table_name": "Act"
+        },
+        "dependsOn": []
+      },
+      {
+        "type": "column",
+        "name": "Act-ActCode",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "ActCode",
+          "data_type": "varchar",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "Act",
+          "table_name": "Act",
+          "max_length": 255
+        },
+        "dependsOn": [
+          "Datastore.table.Act"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "Act-ActDescription",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "ActDescription",
+          "data_type": "varchar",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "Act",
+          "table_name": "Act",
+          "max_length": 255
+        },
+        "dependsOn": [
+          "Datastore.table.Act"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "Act-ShortName",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "ShortName",
+          "data_type": "varchar",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "Act",
+          "table_name": "Act",
+          "max_length": 255
+        },
+        "dependsOn": [
+          "Datastore.table.Act"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "Act-Active",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "Active",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "Act",
+          "table_name": "Act",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.Act"
+        ]
+      },
+      {
+        "type": "tableScope",
+        "name": "Act-App Administrator",
+        "properties": {
+          "role_name": "App Administrator",
+          "table_scope": "GLOBAL",
+          "type": "App Administrator",
+          "table_name": "Act"
+        },
+        "dependsOn": [
+          "Datastore.table.Act"
+        ]
+      },
+      {
+        "type": "table",
+        "name": "Section",
+        "properties": {
+          "table_name": "Section"
+        },
+        "dependsOn": []
+      },
+      {
+        "type": "column",
+        "name": "Section-ActCode",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "ActCode",
+          "data_type": "varchar",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "Section",
+          "table_name": "Section",
+          "max_length": 255
+        },
+        "dependsOn": [
+          "Datastore.table.Section"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "Section-SectionCode",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "SectionCode",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "Section",
+          "table_name": "Section",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.Section"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "Section-SectionDescription",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "SectionDescription",
+          "data_type": "varchar",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "Section",
+          "table_name": "Section",
+          "max_length": 255
+        },
+        "dependsOn": [
+          "Datastore.table.Section"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "Section-Active",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "Active",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "Section",
+          "table_name": "Section",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.Section"
+        ]
+      },
+      {
+        "type": "tableScope",
+        "name": "Section-App Administrator",
+        "properties": {
+          "role_name": "App Administrator",
+          "table_scope": "GLOBAL",
+          "type": "App Administrator",
+          "table_name": "Section"
+        },
+        "dependsOn": [
+          "Datastore.table.Section"
+        ]
+      },
+      {
+        "type": "table",
+        "name": "CrimeHeadActSection",
+        "properties": {
+          "table_name": "CrimeHeadActSection"
+        },
+        "dependsOn": []
+      },
+      {
+        "type": "column",
+        "name": "CrimeHeadActSection-CrimeHeadID",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "CrimeHeadID",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "CrimeHeadActSection",
+          "table_name": "CrimeHeadActSection",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.CrimeHeadActSection"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "CrimeHeadActSection-ActCode",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "ActCode",
+          "data_type": "varchar",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "CrimeHeadActSection",
+          "table_name": "CrimeHeadActSection",
+          "max_length": 255
+        },
+        "dependsOn": [
+          "Datastore.table.CrimeHeadActSection"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "CrimeHeadActSection-SectionCode",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "SectionCode",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "CrimeHeadActSection",
+          "table_name": "CrimeHeadActSection",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.CrimeHeadActSection"
+        ]
+      },
+      {
+        "type": "tableScope",
+        "name": "CrimeHeadActSection-App Administrator",
+        "properties": {
+          "role_name": "App Administrator",
+          "table_scope": "GLOBAL",
+          "type": "App Administrator",
+          "table_name": "CrimeHeadActSection"
+        },
+        "dependsOn": [
+          "Datastore.table.CrimeHeadActSection"
+        ]
+      },
+      {
+        "type": "table",
+        "name": "Court",
+        "properties": {
+          "table_name": "Court"
+        },
+        "dependsOn": []
+      },
+      {
+        "type": "column",
+        "name": "Court-CourtID",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "CourtID",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "Court",
+          "table_name": "Court",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.Court"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "Court-CourtName",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "CourtName",
+          "data_type": "varchar",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "Court",
+          "table_name": "Court",
+          "max_length": 255
+        },
+        "dependsOn": [
+          "Datastore.table.Court"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "Court-DistrictID",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "DistrictID",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "Court",
+          "table_name": "Court",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.Court"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "Court-StateID",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "StateID",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "Court",
+          "table_name": "Court",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.Court"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "Court-Active",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "Active",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "Court",
+          "table_name": "Court",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.Court"
+        ]
+      },
+      {
+        "type": "tableScope",
+        "name": "Court-App Administrator",
+        "properties": {
+          "role_name": "App Administrator",
+          "table_scope": "GLOBAL",
+          "type": "App Administrator",
+          "table_name": "Court"
+        },
+        "dependsOn": [
+          "Datastore.table.Court"
+        ]
+      },
+      {
+        "type": "table",
+        "name": "CaseStatusMaster",
+        "properties": {
+          "table_name": "CaseStatusMaster"
+        },
+        "dependsOn": []
+      },
+      {
+        "type": "column",
+        "name": "CaseStatusMaster-CaseStatusID",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "CaseStatusID",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "CaseStatusMaster",
+          "table_name": "CaseStatusMaster",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.CaseStatusMaster"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "CaseStatusMaster-CaseStatusName",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "CaseStatusName",
+          "data_type": "varchar",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "CaseStatusMaster",
+          "table_name": "CaseStatusMaster",
+          "max_length": 255
+        },
+        "dependsOn": [
+          "Datastore.table.CaseStatusMaster"
+        ]
+      },
+      {
+        "type": "tableScope",
+        "name": "CaseStatusMaster-App Administrator",
+        "properties": {
+          "role_name": "App Administrator",
+          "table_scope": "GLOBAL",
+          "type": "App Administrator",
+          "table_name": "CaseStatusMaster"
+        },
+        "dependsOn": [
+          "Datastore.table.CaseStatusMaster"
+        ]
+      },
+      {
+        "type": "table",
+        "name": "CasteMaster",
+        "properties": {
+          "table_name": "CasteMaster"
+        },
+        "dependsOn": []
+      },
+      {
+        "type": "column",
+        "name": "CasteMaster-caste_master_id",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "caste_master_id",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "CasteMaster",
+          "table_name": "CasteMaster",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.CasteMaster"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "CasteMaster-caste_master_name",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "caste_master_name",
+          "data_type": "varchar",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "CasteMaster",
+          "table_name": "CasteMaster",
+          "max_length": 255
+        },
+        "dependsOn": [
+          "Datastore.table.CasteMaster"
+        ]
+      },
+      {
+        "type": "tableScope",
+        "name": "CasteMaster-App Administrator",
+        "properties": {
+          "role_name": "App Administrator",
+          "table_scope": "GLOBAL",
+          "type": "App Administrator",
+          "table_name": "CasteMaster"
+        },
+        "dependsOn": [
+          "Datastore.table.CasteMaster"
+        ]
+      },
+      {
+        "type": "table",
+        "name": "ReligionMaster",
+        "properties": {
+          "table_name": "ReligionMaster"
+        },
+        "dependsOn": []
+      },
+      {
+        "type": "column",
+        "name": "ReligionMaster-ReligionID",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "ReligionID",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "ReligionMaster",
+          "table_name": "ReligionMaster",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.ReligionMaster"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "ReligionMaster-ReligionName",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "ReligionName",
+          "data_type": "varchar",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "ReligionMaster",
+          "table_name": "ReligionMaster",
+          "max_length": 255
+        },
+        "dependsOn": [
+          "Datastore.table.ReligionMaster"
+        ]
+      },
+      {
+        "type": "tableScope",
+        "name": "ReligionMaster-App Administrator",
+        "properties": {
+          "role_name": "App Administrator",
+          "table_scope": "GLOBAL",
+          "type": "App Administrator",
+          "table_name": "ReligionMaster"
+        },
+        "dependsOn": [
+          "Datastore.table.ReligionMaster"
+        ]
+      },
+      {
+        "type": "table",
+        "name": "OccupationMaster",
+        "properties": {
+          "table_name": "OccupationMaster"
+        },
+        "dependsOn": []
+      },
+      {
+        "type": "column",
+        "name": "OccupationMaster-OccupationID",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "OccupationID",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "OccupationMaster",
+          "table_name": "OccupationMaster",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.OccupationMaster"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "OccupationMaster-OccupationName",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "OccupationName",
+          "data_type": "varchar",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "OccupationMaster",
+          "table_name": "OccupationMaster",
+          "max_length": 255
+        },
+        "dependsOn": [
+          "Datastore.table.OccupationMaster"
+        ]
+      },
+      {
+        "type": "tableScope",
+        "name": "OccupationMaster-App Administrator",
+        "properties": {
+          "role_name": "App Administrator",
+          "table_scope": "GLOBAL",
+          "type": "App Administrator",
+          "table_name": "OccupationMaster"
+        },
+        "dependsOn": [
+          "Datastore.table.OccupationMaster"
+        ]
+      },
+      {
+        "type": "table",
+        "name": "CaseMaster",
+        "properties": {
+          "table_name": "CaseMaster"
+        },
+        "dependsOn": []
+      },
+      {
+        "type": "column",
+        "name": "CaseMaster-CaseMasterID",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "CaseMasterID",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "CaseMaster",
+          "table_name": "CaseMaster",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.CaseMaster"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "CaseMaster-CrimeNo",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "CrimeNo",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "CaseMaster",
+          "table_name": "CaseMaster",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.CaseMaster"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "CaseMaster-CaseNo",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "CaseNo",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "CaseMaster",
+          "table_name": "CaseMaster",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.CaseMaster"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "CaseMaster-CrimeRegisteredDate",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "CrimeRegisteredDate",
+          "data_type": "varchar",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "CaseMaster",
+          "table_name": "CaseMaster",
+          "max_length": 255
+        },
+        "dependsOn": [
+          "Datastore.table.CaseMaster"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "CaseMaster-PolicePersonID",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "PolicePersonID",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "CaseMaster",
+          "table_name": "CaseMaster",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.CaseMaster"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "CaseMaster-PoliceStationID",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "PoliceStationID",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "CaseMaster",
+          "table_name": "CaseMaster",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.CaseMaster"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "CaseMaster-CaseCategoryID",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "CaseCategoryID",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "CaseMaster",
+          "table_name": "CaseMaster",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.CaseMaster"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "CaseMaster-GravityOffenceID",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "GravityOffenceID",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "CaseMaster",
+          "table_name": "CaseMaster",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.CaseMaster"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "CaseMaster-CrimeMajorHeadID",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "CrimeMajorHeadID",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "CaseMaster",
+          "table_name": "CaseMaster",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.CaseMaster"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "CaseMaster-CrimeMinorHeadID",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "CrimeMinorHeadID",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "CaseMaster",
+          "table_name": "CaseMaster",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.CaseMaster"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "CaseMaster-CaseStatusID",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "CaseStatusID",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "CaseMaster",
+          "table_name": "CaseMaster",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.CaseMaster"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "CaseMaster-CourtID",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "CourtID",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "CaseMaster",
+          "table_name": "CaseMaster",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.CaseMaster"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "CaseMaster-IncidentFromDate",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "IncidentFromDate",
+          "data_type": "varchar",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "CaseMaster",
+          "table_name": "CaseMaster",
+          "max_length": 255
+        },
+        "dependsOn": [
+          "Datastore.table.CaseMaster"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "CaseMaster-IncidentToDate",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "IncidentToDate",
+          "data_type": "varchar",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "CaseMaster",
+          "table_name": "CaseMaster",
+          "max_length": 255
+        },
+        "dependsOn": [
+          "Datastore.table.CaseMaster"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "CaseMaster-InfoReceivedPSDate",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "InfoReceivedPSDate",
+          "data_type": "varchar",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "CaseMaster",
+          "table_name": "CaseMaster",
+          "max_length": 255
+        },
+        "dependsOn": [
+          "Datastore.table.CaseMaster"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "CaseMaster-latitude",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "latitude",
+          "data_type": "varchar",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "CaseMaster",
+          "table_name": "CaseMaster",
+          "max_length": 255
+        },
+        "dependsOn": [
+          "Datastore.table.CaseMaster"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "CaseMaster-longitude",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "longitude",
+          "data_type": "varchar",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "CaseMaster",
+          "table_name": "CaseMaster",
+          "max_length": 255
+        },
+        "dependsOn": [
+          "Datastore.table.CaseMaster"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "CaseMaster-BriefFacts",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "BriefFacts",
+          "data_type": "varchar",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "CaseMaster",
+          "table_name": "CaseMaster",
+          "max_length": 255
+        },
+        "dependsOn": [
+          "Datastore.table.CaseMaster"
+        ]
+      },
+      {
+        "type": "tableScope",
+        "name": "CaseMaster-App Administrator",
+        "properties": {
+          "role_name": "App Administrator",
+          "table_scope": "GLOBAL",
+          "type": "App Administrator",
+          "table_name": "CaseMaster"
+        },
+        "dependsOn": [
+          "Datastore.table.CaseMaster"
+        ]
+      },
+      {
+        "type": "table",
+        "name": "Inv_OccuranceTime",
+        "properties": {
+          "table_name": "Inv_OccuranceTime"
+        },
+        "dependsOn": []
+      },
+      {
+        "type": "column",
+        "name": "Inv_OccuranceTime-CaseMasterID",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "CaseMasterID",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "Inv_OccuranceTime",
+          "table_name": "Inv_OccuranceTime",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.Inv_OccuranceTime"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "Inv_OccuranceTime-IncidentFromDate",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "IncidentFromDate",
+          "data_type": "varchar",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "Inv_OccuranceTime",
+          "table_name": "Inv_OccuranceTime",
+          "max_length": 255
+        },
+        "dependsOn": [
+          "Datastore.table.Inv_OccuranceTime"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "Inv_OccuranceTime-IncidentToDate",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "IncidentToDate",
+          "data_type": "varchar",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "Inv_OccuranceTime",
+          "table_name": "Inv_OccuranceTime",
+          "max_length": 255
+        },
+        "dependsOn": [
+          "Datastore.table.Inv_OccuranceTime"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "Inv_OccuranceTime-latitude",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "latitude",
+          "data_type": "varchar",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "Inv_OccuranceTime",
+          "table_name": "Inv_OccuranceTime",
+          "max_length": 255
+        },
+        "dependsOn": [
+          "Datastore.table.Inv_OccuranceTime"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "Inv_OccuranceTime-longitude",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "longitude",
+          "data_type": "varchar",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "Inv_OccuranceTime",
+          "table_name": "Inv_OccuranceTime",
+          "max_length": 255
+        },
+        "dependsOn": [
+          "Datastore.table.Inv_OccuranceTime"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "Inv_OccuranceTime-PlaceOfOccurrence",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "PlaceOfOccurrence",
+          "data_type": "varchar",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "Inv_OccuranceTime",
+          "table_name": "Inv_OccuranceTime",
+          "max_length": 255
+        },
+        "dependsOn": [
+          "Datastore.table.Inv_OccuranceTime"
+        ]
+      },
+      {
+        "type": "tableScope",
+        "name": "Inv_OccuranceTime-App Administrator",
+        "properties": {
+          "role_name": "App Administrator",
+          "table_scope": "GLOBAL",
+          "type": "App Administrator",
+          "table_name": "Inv_OccuranceTime"
+        },
+        "dependsOn": [
+          "Datastore.table.Inv_OccuranceTime"
+        ]
+      },
+      {
+        "type": "table",
+        "name": "ComplainantDetails",
+        "properties": {
+          "table_name": "ComplainantDetails"
+        },
+        "dependsOn": []
+      },
+      {
+        "type": "column",
+        "name": "ComplainantDetails-ComplainantID",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "ComplainantID",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "ComplainantDetails",
+          "table_name": "ComplainantDetails",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.ComplainantDetails"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "ComplainantDetails-CaseMasterID",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "CaseMasterID",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "ComplainantDetails",
+          "table_name": "ComplainantDetails",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.ComplainantDetails"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "ComplainantDetails-ComplainantName",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "ComplainantName",
+          "data_type": "varchar",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "ComplainantDetails",
+          "table_name": "ComplainantDetails",
+          "max_length": 255
+        },
+        "dependsOn": [
+          "Datastore.table.ComplainantDetails"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "ComplainantDetails-AgeYear",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "AgeYear",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "ComplainantDetails",
+          "table_name": "ComplainantDetails",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.ComplainantDetails"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "ComplainantDetails-OccupationID",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "OccupationID",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "ComplainantDetails",
+          "table_name": "ComplainantDetails",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.ComplainantDetails"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "ComplainantDetails-ReligionID",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "ReligionID",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "ComplainantDetails",
+          "table_name": "ComplainantDetails",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.ComplainantDetails"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "ComplainantDetails-CasteID",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "CasteID",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "ComplainantDetails",
+          "table_name": "ComplainantDetails",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.ComplainantDetails"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "ComplainantDetails-GenderID",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "GenderID",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "ComplainantDetails",
+          "table_name": "ComplainantDetails",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.ComplainantDetails"
+        ]
+      },
+      {
+        "type": "tableScope",
+        "name": "ComplainantDetails-App Administrator",
+        "properties": {
+          "role_name": "App Administrator",
+          "table_scope": "GLOBAL",
+          "type": "App Administrator",
+          "table_name": "ComplainantDetails"
+        },
+        "dependsOn": [
+          "Datastore.table.ComplainantDetails"
+        ]
+      },
+      {
+        "type": "table",
+        "name": "ActSectionAssociation",
+        "properties": {
+          "table_name": "ActSectionAssociation"
+        },
+        "dependsOn": []
+      },
+      {
+        "type": "column",
+        "name": "ActSectionAssociation-CaseMasterID",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "CaseMasterID",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "ActSectionAssociation",
+          "table_name": "ActSectionAssociation",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.ActSectionAssociation"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "ActSectionAssociation-ActID",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "ActID",
+          "data_type": "varchar",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "ActSectionAssociation",
+          "table_name": "ActSectionAssociation",
+          "max_length": 255
+        },
+        "dependsOn": [
+          "Datastore.table.ActSectionAssociation"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "ActSectionAssociation-SectionID",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "SectionID",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "ActSectionAssociation",
+          "table_name": "ActSectionAssociation",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.ActSectionAssociation"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "ActSectionAssociation-ActOrderID",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "ActOrderID",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "ActSectionAssociation",
+          "table_name": "ActSectionAssociation",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.ActSectionAssociation"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "ActSectionAssociation-SectionOrderID",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "SectionOrderID",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "ActSectionAssociation",
+          "table_name": "ActSectionAssociation",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.ActSectionAssociation"
+        ]
+      },
+      {
+        "type": "tableScope",
+        "name": "ActSectionAssociation-App Administrator",
+        "properties": {
+          "role_name": "App Administrator",
+          "table_scope": "GLOBAL",
+          "type": "App Administrator",
+          "table_name": "ActSectionAssociation"
+        },
+        "dependsOn": [
+          "Datastore.table.ActSectionAssociation"
+        ]
+      },
+      {
+        "type": "table",
+        "name": "Victim",
+        "properties": {
+          "table_name": "Victim"
+        },
+        "dependsOn": []
+      },
+      {
+        "type": "column",
+        "name": "Victim-VictimMasterID",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "VictimMasterID",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "Victim",
+          "table_name": "Victim",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.Victim"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "Victim-CaseMasterID",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "CaseMasterID",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "Victim",
+          "table_name": "Victim",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.Victim"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "Victim-VictimName",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "VictimName",
+          "data_type": "varchar",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "Victim",
+          "table_name": "Victim",
+          "max_length": 255
+        },
+        "dependsOn": [
+          "Datastore.table.Victim"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "Victim-AgeYear",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "AgeYear",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "Victim",
+          "table_name": "Victim",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.Victim"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "Victim-GenderID",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "GenderID",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "Victim",
+          "table_name": "Victim",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.Victim"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "Victim-VictimPolice",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "VictimPolice",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "Victim",
+          "table_name": "Victim",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.Victim"
+        ]
+      },
+      {
+        "type": "tableScope",
+        "name": "Victim-App Administrator",
+        "properties": {
+          "role_name": "App Administrator",
+          "table_scope": "GLOBAL",
+          "type": "App Administrator",
+          "table_name": "Victim"
+        },
+        "dependsOn": [
+          "Datastore.table.Victim"
+        ]
+      },
+      {
+        "type": "table",
+        "name": "Accused",
+        "properties": {
+          "table_name": "Accused"
+        },
+        "dependsOn": []
+      },
+      {
+        "type": "column",
+        "name": "Accused-AccusedMasterID",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "AccusedMasterID",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "Accused",
+          "table_name": "Accused",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.Accused"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "Accused-CaseMasterID",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "CaseMasterID",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "Accused",
+          "table_name": "Accused",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.Accused"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "Accused-AccusedName",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "AccusedName",
+          "data_type": "varchar",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "Accused",
+          "table_name": "Accused",
+          "max_length": 255
+        },
+        "dependsOn": [
+          "Datastore.table.Accused"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "Accused-AgeYear",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "AgeYear",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "Accused",
+          "table_name": "Accused",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.Accused"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "Accused-GenderID",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "GenderID",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "Accused",
+          "table_name": "Accused",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.Accused"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "Accused-PersonID",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "PersonID",
+          "data_type": "varchar",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "Accused",
+          "table_name": "Accused",
+          "max_length": 255
+        },
+        "dependsOn": [
+          "Datastore.table.Accused"
+        ]
+      },
+      {
+        "type": "tableScope",
+        "name": "Accused-App Administrator",
+        "properties": {
+          "role_name": "App Administrator",
+          "table_scope": "GLOBAL",
+          "type": "App Administrator",
+          "table_name": "Accused"
+        },
+        "dependsOn": [
+          "Datastore.table.Accused"
+        ]
+      },
+      {
+        "type": "table",
+        "name": "ArrestSurrender",
+        "properties": {
+          "table_name": "ArrestSurrender"
+        },
+        "dependsOn": []
+      },
+      {
+        "type": "column",
+        "name": "ArrestSurrender-ArrestSurrenderID",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "ArrestSurrenderID",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "ArrestSurrender",
+          "table_name": "ArrestSurrender",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.ArrestSurrender"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "ArrestSurrender-CaseMasterID",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "CaseMasterID",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "ArrestSurrender",
+          "table_name": "ArrestSurrender",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.ArrestSurrender"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "ArrestSurrender-ArrestSurrenderTypeID",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "ArrestSurrenderTypeID",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "ArrestSurrender",
+          "table_name": "ArrestSurrender",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.ArrestSurrender"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "ArrestSurrender-ArrestSurrenderDate",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "ArrestSurrenderDate",
+          "data_type": "varchar",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "ArrestSurrender",
+          "table_name": "ArrestSurrender",
+          "max_length": 255
+        },
+        "dependsOn": [
+          "Datastore.table.ArrestSurrender"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "ArrestSurrender-ArrestSurrenderStateId",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "ArrestSurrenderStateId",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "ArrestSurrender",
+          "table_name": "ArrestSurrender",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.ArrestSurrender"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "ArrestSurrender-ArrestSurrenderDistrictId",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "ArrestSurrenderDistrictId",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "ArrestSurrender",
+          "table_name": "ArrestSurrender",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.ArrestSurrender"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "ArrestSurrender-PoliceStationID",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "PoliceStationID",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "ArrestSurrender",
+          "table_name": "ArrestSurrender",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.ArrestSurrender"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "ArrestSurrender-IOID",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "IOID",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "ArrestSurrender",
+          "table_name": "ArrestSurrender",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.ArrestSurrender"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "ArrestSurrender-CourtID",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "CourtID",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "ArrestSurrender",
+          "table_name": "ArrestSurrender",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.ArrestSurrender"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "ArrestSurrender-AccusedMasterID",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "AccusedMasterID",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "ArrestSurrender",
+          "table_name": "ArrestSurrender",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.ArrestSurrender"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "ArrestSurrender-IsAccused",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "IsAccused",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "ArrestSurrender",
+          "table_name": "ArrestSurrender",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.ArrestSurrender"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "ArrestSurrender-IsComplainantAccused",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "IsComplainantAccused",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "ArrestSurrender",
+          "table_name": "ArrestSurrender",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.ArrestSurrender"
+        ]
+      },
+      {
+        "type": "tableScope",
+        "name": "ArrestSurrender-App Administrator",
+        "properties": {
+          "role_name": "App Administrator",
+          "table_scope": "GLOBAL",
+          "type": "App Administrator",
+          "table_name": "ArrestSurrender"
+        },
+        "dependsOn": [
+          "Datastore.table.ArrestSurrender"
+        ]
+      },
+      {
+        "type": "table",
+        "name": "inv_arrestsurrenderaccused",
+        "properties": {
+          "table_name": "inv_arrestsurrenderaccused"
+        },
+        "dependsOn": []
+      },
+      {
+        "type": "column",
+        "name": "inv_arrestsurrenderaccused-ArrestSurrenderID",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "ArrestSurrenderID",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "inv_arrestsurrenderaccused",
+          "table_name": "inv_arrestsurrenderaccused",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.inv_arrestsurrenderaccused"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "inv_arrestsurrenderaccused-AccusedMasterID",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "AccusedMasterID",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "inv_arrestsurrenderaccused",
+          "table_name": "inv_arrestsurrenderaccused",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.inv_arrestsurrenderaccused"
+        ]
+      },
+      {
+        "type": "tableScope",
+        "name": "inv_arrestsurrenderaccused-App Administrator",
+        "properties": {
+          "role_name": "App Administrator",
+          "table_scope": "GLOBAL",
+          "type": "App Administrator",
+          "table_name": "inv_arrestsurrenderaccused"
+        },
+        "dependsOn": [
+          "Datastore.table.inv_arrestsurrenderaccused"
+        ]
+      },
+      {
+        "type": "table",
+        "name": "ChargesheetDetails",
+        "properties": {
+          "table_name": "ChargesheetDetails"
+        },
+        "dependsOn": []
+      },
+      {
+        "type": "column",
+        "name": "ChargesheetDetails-CSID",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "CSID",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "ChargesheetDetails",
+          "table_name": "ChargesheetDetails",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.ChargesheetDetails"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "ChargesheetDetails-CaseMasterID",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "CaseMasterID",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "ChargesheetDetails",
+          "table_name": "ChargesheetDetails",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.ChargesheetDetails"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "ChargesheetDetails-csdate",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "csdate",
+          "data_type": "varchar",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "ChargesheetDetails",
+          "table_name": "ChargesheetDetails",
+          "max_length": 255
+        },
+        "dependsOn": [
+          "Datastore.table.ChargesheetDetails"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "ChargesheetDetails-cstype",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "cstype",
+          "data_type": "varchar",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "ChargesheetDetails",
+          "table_name": "ChargesheetDetails",
+          "max_length": 255
+        },
+        "dependsOn": [
+          "Datastore.table.ChargesheetDetails"
+        ]
+      },
+      {
+        "type": "column",
+        "name": "ChargesheetDetails-PolicePersonID",
+        "properties": {
+          "audit_consent": false,
+          "decimal_digits": 2,
+          "column_name": "PolicePersonID",
+          "data_type": "bigint",
+          "is_unique": false,
+          "is_mandatory": false,
+          "search_index_enabled": false,
+          "table_id": "ChargesheetDetails",
+          "table_name": "ChargesheetDetails",
+          "max_length": 19
+        },
+        "dependsOn": [
+          "Datastore.table.ChargesheetDetails"
+        ]
+      },
+      {
+        "type": "tableScope",
+        "name": "ChargesheetDetails-App Administrator",
+        "properties": {
+          "role_name": "App Administrator",
+          "table_scope": "GLOBAL",
+          "type": "App Administrator",
+          "table_name": "ChargesheetDetails"
+        },
+        "dependsOn": [
+          "Datastore.table.ChargesheetDetails"
+        ]
+      }
+    ],
+    "Authentication": [
+      {
+        "type": "emailTemplates",
+        "name": "1",
+        "properties": {
+          "subject": "Welcome to %APP_NAME%",
+          "template_type": 1,
+          "message": "<p>Hello %FIRST_NAME% %LAST_NAME%,</p>\n<p>You have been invited to join %APP_NAME%. You can access the app from this link:</p>\n<p><a href='%LINK%'>%LINK%</a></p>\n<p>You are assigned to the role %ROLE_NAME% in this app.</p>\n<p>If you didn’t ask to join the application or if you think this was a mistake, you can ignore this email.</p>\n<p>Thanks,</p>\n<p>%APP_NAME% team</p>\n"
+        },
+        "dependsOn": []
+      },
+      {
+        "type": "emailTemplates",
+        "name": "2",
+        "properties": {
+          "subject": "Password Reset for %APP_NAME%",
+          "template_type": 2,
+          "message": "<p>Hello %FIRST_NAME% %LAST_NAME%,</p>\n<p>Follow this link to reset your %APP_NAME% password for your %EMAIL% account.</p>\n<p><a href='%LINK%'>%LINK%</a></p>\n<p>If you didn't ask to reset your password, you can ignore this email.</p>\n<p>Thanks,</p>\n<p>Your %APP_NAME% team</p>"
+        },
+        "dependsOn": []
+      },
+      {
+        "type": "roles",
+        "name": "App Administrator",
+        "properties": {
+          "role_name": "App Administrator",
+          "description": "Admin Role for the application",
+          "type": "App Administrator",
+          "is_default": false
+        },
+        "dependsOn": [
+          "Authentication.roles.App User"
+        ]
+      },
+      {
+        "type": "roles",
+        "name": "App User",
+        "properties": {
+          "role_name": "App User",
+          "description": "User Role for the application",
+          "type": "App User",
+          "is_default": true
+        },
+        "dependsOn": []
+      },
+      {
+        "type": "SignupConfiguration",
+        "name": "signup-configuration",
+        "properties": {
+          "app_account_meta": {},
+          "custom_validation": false,
+          "public_signup": false,
+          "status": {
+            "embedded_auth": false,
+            "third_party_auth": false,
+            "hosted_auth": false
+          }
+        },
+        "dependsOn": []
+      },
+      {
+        "type": "HostedLogin",
+        "name": "hosted-login",
+        "properties": {
+          "config": {
+            "is_logo_present": false,
+            "company_name": "",
+            "colors": {
+              "background_color": "#dce7ff",
+              "primary_color": "#0059e9"
+            }
+          }
+        },
+        "dependsOn": []
+      }
+    ],
+    "AppSail": [],
+    "SecurityRules": [
+      {
+        "type": "rules",
+        "name": "security-rules",
+        "properties": {
+          "advancedio": {
+            "api_service": [
+              {
+                ".*": {
+                  "methods": [
+                    "GET",
+                    "POST",
+                    "DELETE",
+                    "PUT",
+                    "PATCH"
+                  ],
+                  "authentication": "optional"
+                }
+              }
+            ]
+          }
+        },
+        "dependsOn": []
+      }
+    ],
+    "EventListeners": [],
+    "SchedulingCron": [],
+    "Cache": [
+      {
+        "type": "segment",
+        "name": "Default",
+        "properties": {
+          "segment_name": "Default"
+        },
+        "dependsOn": []
+      }
+    ]
+  }
+}

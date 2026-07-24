@@ -150,6 +150,12 @@ function buildPayload(tables) {
     source: tables.__source || 'Zoho Catalyst Data Store',
     generatedAt: new Date().toISOString(),
     summary: { totalCases: cases.length, underInvestigation, chargeSheeted, closed, arrests: tables.ArrestSurrender.length, highPriority: cases.filter((item) => number(item.GravityOffenceID) === 1).length },
+    // Makes all ER entities visible to the dashboard/API without forcing every
+    // screen to download and render every individual record.
+    entityCoverage: Object.entries(tables)
+      .filter(([name, rows]) => name !== '__source' && Array.isArray(rows))
+      .map(([name, rows]) => ({ entity: name, records: rows.length }))
+      .sort((a, b) => a.entity.localeCompare(b.entity)),
     pulse: {
       Week: { labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'], values: dailyValues },
       Month: { labels: monthNames, values: monthValues },
